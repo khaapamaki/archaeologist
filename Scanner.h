@@ -12,7 +12,7 @@
 
 @interface Scanner : NSOperation {
     FSItem *_scanTree;
-    NSURL *_scanRoot;
+    NSURL *_scanRootURL;
     id _sender;    
 }
 

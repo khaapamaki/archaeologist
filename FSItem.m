@@ -8,13 +8,8 @@
 
 #import "FSItem.h"
 
-@implementation FSItem
 
-#define DISPLAYTIMEINTERVAL 0.17
-#define ARCHIVETAG @"_to_archive"
-#define DELETETAG @"_to_be_DELETED"
-#define CANDIDATETAG @"_archive_candidate"
-#define CHECKTAG @"_archive_check"
+@implementation FSItem
 
 #pragma mark - Notifications
 
@@ -122,24 +117,18 @@
                 _contentsFullyRead = YES;
             }
             
-            _isMarkedForArchiving = @NO;
-            _isMarkedForRemoval = @NO;
             TagType tagPattern = 0;
             if (nameTags != nil) {
                 if ([nameTags containsObject:ARCHIVETAG] == YES) {
-                    _isMarkedForArchiving = @YES;
                     tagPattern |= ArchiveTag;
                 }
                 if ([nameTags containsObject:DELETETAG] == YES) {
-                    _isMarkedForRemoval = @YES;
                     tagPattern |= DeleteTag;
                 }
                 if ([nameTags containsObject:CANDIDATETAG] == YES) {
-                    _isMarkedAsCandidate = @YES;
                     tagPattern |= CandidateTag;
                 }
                 if ([nameTags containsObject:CHECKTAG] == YES) {
-                    _isMarkedForChecking = @YES;
                     tagPattern |= CheckTag;
                 }
             }
@@ -348,25 +337,21 @@
     if ((tag & ArchiveTag) != 0) {
         if ([self setTag:ARCHIVETAG]) {
             _tags = @([_tags shortValue] | ArchiveTag);
-            _isMarkedForArchiving = @YES;
         }
     }
     if ((tag & DeleteTag) != 0) {
         if ([self setTag:DELETETAG]) {
             _tags = @([_tags shortValue] | DeleteTag);
-            _isMarkedForRemoval = @YES;
         }
     }
     if ((tag & CandidateTag) != 0) {
         if ([self setTag:CANDIDATETAG]) {
             _tags = @([_tags shortValue] | CandidateTag);
-            _isMarkedAsCandidate = @YES;
         }
     }
     if ((tag & CheckTag) != 0) {
         if ([self setTag:CHECKTAG]) {
             _tags = @([_tags shortValue] | CheckTag);
-            _isMarkedForChecking = @YES;
         }
     }
     if (currentTags != [_tags shortValue]) {
@@ -381,25 +366,21 @@
     if ((tag & ArchiveTag) != 0) {
         if ([self removeTag:ARCHIVETAG]) {
                 _tags = @([_tags shortValue] & ~ArchiveTag);
-            _isMarkedForArchiving = @NO;
         }
     }
     if ((tag & DeleteTag) != 0) {
         if ([self removeTag:DELETETAG]) {
             _tags = @([_tags shortValue] & ~DeleteTag);
-            _isMarkedForRemoval = @NO;
         }
     }
     if ((tag & CandidateTag) != 0) {
         if ([self removeTag:CANDIDATETAG]) {
             _tags = @([_tags shortValue] & ~CandidateTag);
-            _isMarkedAsCandidate = @NO;
         }
     }
     if ((tag & CheckTag) != 0) {
         if ([self removeTag:CHECKTAG]) {
             _tags = @([_tags shortValue] & ~CheckTag);
-            _isMarkedForChecking = @NO;
         }
     }
     if (currentTags != [_tags shortValue]) {
@@ -409,93 +390,6 @@
     }
 }
 
-//-(BOOL)markForArchiving {
-//    if ([self hasTag:ARCHIVETAG]) {
-//        return NO;
-//    }
-//    BOOL didChange = [self setTag:ARCHIVETAG];
-//    if (didChange) {
-//        _isMarkedForArchiving = @YES;
-//    }
-//    return didChange;
-//}
-//
-//-(BOOL)unmarkForArchiving {
-//    if (![self hasTag:ARCHIVETAG]) {
-//        return NO;
-//    }
-//    BOOL didChange = [self removeTag:ARCHIVETAG];
-//    if (didChange) {
-//        _isMarkedForArchiving = @NO;
-//    }
-//    return didChange;
-//}
-//
-//-(BOOL)markForRemoval {
-//    if ([self hasTag:DELETETAG]) {
-//        return NO;
-//    }
-//    BOOL didChange = [self setTag:DELETETAG];
-//    if (didChange) {
-//        _isMarkedForRemoval = @YES;
-//    }
-//    return didChange;
-//}
-//
-//-(BOOL)unmarkForRemoval {
-//    if (![self hasTag:DELETETAG]) {
-//        return NO;
-//    }
-//    BOOL didChange = [self removeTag:DELETETAG];
-//    if (didChange) {
-//        _isMarkedForRemoval = @NO;
-//    }
-//    return didChange;
-//}
-//
-//-(BOOL)markAsCandidate {
-//    if ([self hasTag:CANDIDATETAG]) {
-//        return NO;
-//    }
-//    BOOL didChange = [self setTag:CANDIDATETAG];
-//    if (didChange) {
-//        _isMarkedAsCandidate = @YES;
-//    }
-//    return didChange;
-//}
-//
-//-(BOOL)unmarkAsCandidate {
-//    if (![self hasTag:CANDIDATETAG]) {
-//        return NO;
-//    }
-//    BOOL didChange = [self removeTag:CANDIDATETAG];
-//    if (didChange) {
-//        _isMarkedAsCandidate= @NO;
-//    }
-//    return didChange;
-//}
-//
-//-(BOOL)markForChecking {
-//    if ([self hasTag:CHECKTAG]) {
-//        return NO;
-//    }
-//    BOOL didChange = [self setTag:CHECKTAG];
-//    if (didChange) {
-//        _isMarkedForChecking = @YES;
-//    }
-//    return didChange;
-//}
-//
-//-(BOOL)unmarkForChecking {
-//    if (![self hasTag:CHECKTAG]) {
-//        return NO;
-//    }
-//    BOOL didChange = [self removeTag:CHECKTAG];
-//    if (didChange) {
-//        _isMarkedForChecking= @NO;
-//    }
-//    return didChange;
-//}
 
 -(BOOL)setTag:(NSString *)tagString {
     @try {
@@ -617,8 +511,7 @@
         _scanData = myScanData;
         _fileURL = fileURL;
         _path = [_fileURL path];
-        _isMarkedForArchiving = @NO;
-        _isMarkedForRemoval = @NO;
+        _tags = @(0);
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(cancelScan:)
                                                      name:@"CancelScan"
@@ -657,8 +550,7 @@
         _fileURL = fileURL;
         _path = [_fileURL path];
         _isCancelled = NO;
-        _isMarkedForArchiving = @NO;
-        _isMarkedForRemoval = @NO;
+        _tags = @(0);
         [self readFileParametersWithDepth:depth];
     }
     return self;

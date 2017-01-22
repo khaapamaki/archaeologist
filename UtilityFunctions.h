@@ -10,7 +10,6 @@
 #import "Definitions.h"
 
 float logx(float value, float base);
-
 void printStdErr(NSString *str);
 void printStdOut(NSString *str);
 void printStdErrLine(NSString *str);

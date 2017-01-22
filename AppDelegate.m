@@ -53,11 +53,10 @@
     // hide lonkero column by default
     [[_resultTableViewController.resultTableView tableColumnWithIdentifier:@"lonkero"] setHidden:!_optionLonkeroMode.state];
     
-    
-    //    if (_resultTableView.doubleAction != @selector(doubleClick:)) {
-    //        [_resultTableView setTarget:self];
-    //        [_resultTableView setDoubleAction:@selector(doubleClick:)];
-    //    }
+    if (_resultTableView.doubleAction != @selector(doubleClick:)) {
+        [_resultTableView setTarget:self];
+        [_resultTableView setDoubleAction:@selector(doubleClick:)];
+    }
     
     [_optionLonkeroMode setToolTip:@"Uses Lonkero metadata to prevent showing folders inside folder structure. "
      "May exceed maximum level limit in search of Lonkero deployment master folder."];
@@ -77,6 +76,8 @@
                                              selector:@selector(updateResultTableView:)
                                                  name:@"ResultTableViewShouldUpdate"
                                                object:nil];
+    
+    [_pathControl setURL:nil];
     
 }
 
@@ -120,6 +121,7 @@
                         }];
         
         
+        // SET OBSERVER FOR SCAN FINISH
         [center addObserverForName:@"ScanFinished"
                             object:nil
                              queue:[NSOperationQueue mainQueue]
@@ -134,12 +136,12 @@
                                 [_analyzer.resultArray removeAllObjects];
                                 _analyzer.resultArray = [[NSMutableArray alloc] initWithCapacity:200];
                                 _scanRoot = _scanner.tree;
-                                
+                                _displayRoot = _scanRoot;
+                                [_pathControl setURL:_displayRoot.fileURL];
                                 // ANALYZE
-                                [self runAnalyzer:_scanRoot];
+                                [self runAnalyzer];
                                 
                                 [_resultTableViewController setTableContents:_analyzer.resultArray];
-                                
                                 
                                 if ([_analyzer.resultArray count] > 0) {
                                     [_inspector inspectDirectoryItem:_scanRoot];
@@ -147,7 +149,7 @@
                             }
                         }];
         
-        // SCAN
+        // START SCAN
         _scanExitButton.title = @"Cancel";
         [_window beginSheet:_scanProgressSheet completionHandler:^(NSModalResponse returnCode)
          {
@@ -186,7 +188,7 @@
     return tags;
 }
 
-- (void)runAnalyzer:(FSItem*)fsItem {
+- (void)runAnalyzer {
     if (_analyzer == nil) {
         _analyzer = [Analyzer new];
     }
@@ -205,10 +207,11 @@
         mode |= _optionLonkeroStopAtParent.state == YES ? FCALonkeroStopAtParent : 0;
         mode |= _optionDatelessDirectoriesAreOld.state == YES ? FCADatelessDirectoriesAreOld : 0;
         
-        [_analyzer scanDirectory:fsItem olderThan:treshold minSize:_minSize minDepth:_minDepth maxDepth:_maxDepth mode:mode];
+        [_analyzer scanDirectory:_displayRoot olderThan:treshold minSize:_minSize minDepth:_minDepth maxDepth:_maxDepth mode:mode];
 
     } else {
-        [_analyzer scanTaggedItems:fsItem tags:tagSelector];
+        // To show tagged items instead of filtered
+        [_analyzer scanTaggedItems:_scanRoot tags:tagSelector];
     }
     
     if ([_analyzer.resultArray count] > 0 || YES) {
@@ -223,7 +226,7 @@
 
 - (void)updateResultTableView:(NSNotification *)aNotification {
     [self readFilterParameters];
-    [self runAnalyzer:_scanRoot];
+    [self runAnalyzer];
     [_resultTableViewController setTableContents:_analyzer.resultArray];
 }
 
@@ -264,7 +267,7 @@
 
 - (IBAction)optionShowDirectoriesWithoutDatesChanged:(id)sender {
     _optionDatelessDirectoriesAreOld.enabled = _optionShowDirectoriesWithoutDates.state;
-    [self runAnalyzer:_scanRoot];
+    [self runAnalyzer];
     [_resultTableViewController setTableContents:_analyzer.resultArray];
 }
 
@@ -273,52 +276,56 @@
     _optionLonkeroFoldersOnly.enabled = _optionLonkeroMode.state;
     _optionLonkeroRespectMaxLimit.enabled = _optionLonkeroMode.state;
     _optionLonkeroSearchMasters.enabled = _optionLonkeroMode.state;
-    [self runAnalyzer:_scanRoot];
+    [self runAnalyzer];
     [_resultTableViewController setTableContents:_analyzer.resultArray];
 }
 
 - (IBAction)optionOnlyLonkeroFoldersChanged:(id)sender {
-    [self runAnalyzer:_scanRoot];
+    [self runAnalyzer];
     [_resultTableViewController setTableContents:_analyzer.resultArray];
 }
 
 - (IBAction)optionSearchMastersChanged:(id)sender {
-    [self runAnalyzer:_scanRoot];
+    [self runAnalyzer];
     [_resultTableViewController setTableContents:_analyzer.resultArray];
 }
 
 - (IBAction)optionLonkeroRespectMaxLimitChanged:(id)sender {
-    [self runAnalyzer:_scanRoot];
+    [self runAnalyzer];
     [_resultTableViewController setTableContents:_analyzer.resultArray];
 }
 
 - (IBAction)optionStopAtParentChanged:(id)sender {
-    [self runAnalyzer:_scanRoot];
+    [self runAnalyzer];
     [_resultTableViewController setTableContents:_analyzer.resultArray];
 }
 
 - (IBAction)optionDatelessDirectoriesAreOldChanged:(id)sender {
-    [self runAnalyzer:_scanRoot];
+    [self runAnalyzer];
     [_resultTableViewController setTableContents:_analyzer.resultArray];
 }
 
 - (IBAction)invertDateFiltersButtonChanged:(id)sender {
-    [self runAnalyzer:_scanRoot];
+    [self runAnalyzer];
     [_resultTableViewController setTableContents:_analyzer.resultArray];
 }
 
 - (IBAction)invertSizeFilterButtonChanged:(id)sender {
-    [self runAnalyzer:_scanRoot];
+    [self runAnalyzer];
     [_resultTableViewController setTableContents:_analyzer.resultArray];
 }
 
 - (IBAction)tagButtonChanged:(id)sender {
-    if ([self readTagSelectors] == 0)
+    if ([self readTagSelectors] == 0) {
         [_filterController setFiltersAndOptionsEnabled:YES];
-    else
+        [_pathControl setURL:_displayRoot.fileURL];
+        [self runAnalyzer];
+    }
+    else {
         [_filterController setFiltersAndOptionsEnabled:NO];
-    
-    [self runAnalyzer:_scanRoot];
+        [_pathControl setURL:_scanRoot.fileURL];
+        [self runAnalyzer];
+    }
     [_resultTableViewController setTableContents:_analyzer.resultArray];
 }
 
@@ -332,6 +339,7 @@
     }
 }
 
+/// WIP
 - (void)doubleClick:(id)object {
     if (_resultTableViewController.resultTableView == nil) {
         return;
@@ -339,8 +347,18 @@
     NSInteger rowNumber = [_resultTableViewController.resultTableView clickedRow];
     if (rowNumber < [_analyzer.resultArray count]) {
         FSItem *clickedItem = [[_analyzer.resultArray objectAtIndex:rowNumber] objectForKey:@"fsitem"];
-        NSArray *URLArray = [NSArray arrayWithObject:clickedItem.fileURL];
-        [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:URLArray];
+        _displayRoot = clickedItem;
+        [_pathControl setURL:_displayRoot.fileURL];
+        if ([self readTagSelectors] != 0) {
+            _tagCheckButton.state = NO;
+            _tagArchiveButton.state = NO;
+            _tagRemovalButton.state = NO;
+            _tagCandidateButton.state = NO;
+            [self tagButtonChanged:nil];
+        } else {
+            [self runAnalyzer];
+            [_resultTableViewController setTableContents:_analyzer.resultArray]; // or reload?
+        }
     }
 }
 
@@ -375,9 +393,60 @@
         }
     } else {
         if (_scanRootURL != nil) {
-            NSArray *URLArray = [NSArray arrayWithObject:_scanRootURL];
+            NSArray *URLArray = [NSArray arrayWithObject:_displayRoot.fileURL];
             [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:URLArray];
         }
+    }
+}
+
+- (IBAction)pathControlClicked:(id)sender {
+    NSURL *clickURL = [[_pathControl clickedPathItem] URL];
+    FSItem *lookForParent = _displayRoot;
+
+    // find correspondinf FSItem for clicked path.
+    BOOL found = NO;
+    while (lookForParent != nil && found == NO) {
+        if ([[lookForParent.path stringByStandardizingPath] isEqualToString:[clickURL.path stringByStandardizingPath]]) {
+            found = YES;
+            break;
+        }
+        lookForParent = lookForParent.parent;
+    }
+    if (found) {
+        _displayRoot = lookForParent;
+    } else {
+        _displayRoot = _scanRoot;
+    }
+    [_pathControl setURL:_displayRoot.fileURL];
+    if ([self readTagSelectors] != 0) {
+        _tagCheckButton.state = NO;
+        _tagArchiveButton.state = NO;
+        _tagRemovalButton.state = NO;
+        _tagCandidateButton.state = NO;
+        [self tagButtonChanged:nil];
+    } else {
+        [self runAnalyzer];
+        [_resultTableViewController setTableContents:_analyzer.resultArray]; // or reload?
+    }
+
+}
+
+- (IBAction)parentFolderClicked:(id)sender {
+    if ([self readTagSelectors] != 0) {
+        _displayRoot = _scanRoot;
+        _tagCheckButton.state = NO;
+        _tagArchiveButton.state = NO;
+        _tagRemovalButton.state = NO;
+        _tagCandidateButton.state = NO;
+        [self tagButtonChanged:nil];
+        return;
+    }
+    
+    if (_displayRoot.parent != nil) {
+        _displayRoot = _displayRoot.parent;
+        [_pathControl setURL:_displayRoot.fileURL];
+        [self runAnalyzer];
+        [_resultTableViewController setTableContents:_analyzer.resultArray]; // or reload?
     }
 }
 
@@ -385,7 +454,7 @@
 
 #pragma mark - Marking
 
-- (IBAction)markForArchiving:(id)sender {
+- (IBAction)tagForArchiving:(id)sender {
     NSIndexSet *selectedIndexes = [_resultTableView getClickedRowOrSelectedRows];
     NSArray *FSItems = [_resultTableViewController getFSItemsByIndexSet:selectedIndexes];
     
@@ -399,8 +468,8 @@
     
     if (includesEmpty) {
         NSAlert *alert = [[NSAlert alloc] init];
-        [alert setMessageText:@"Some folders are empty. Do you really want to mark them for archiving?"];
-        [alert addButtonWithTitle:@"Mark For Archiving"];
+        [alert setMessageText:@"Some folders are empty. Do you really want to tag them for archiving?"];
+        [alert addButtonWithTitle:@"Tag For Archiving"];
         [alert addButtonWithTitle:@"Cancel"];
         [alert beginSheetModalForWindow:_window completionHandler:^(NSInteger result) {
             if (result == NSAlertFirstButtonReturn) {
@@ -408,7 +477,7 @@
                     [thisItem setTagByPattern:ArchiveTag];
                     [thisItem removeTagByPattern:DeleteTag];
                 }
-                [self runAnalyzer:_scanRoot];
+                [self runAnalyzer];
                 [_resultTableViewController setTableContents:_analyzer.resultArray]; // dont just reload, otherwise sorting resets
             }
         }];
@@ -417,23 +486,23 @@
             [thisItem setTagByPattern:ArchiveTag];
             [thisItem removeTagByPattern:DeleteTag];
         }
-        [self runAnalyzer:_scanRoot];
+        [self runAnalyzer];
         [_resultTableViewController setTableContents:_analyzer.resultArray]; // dont just reload, otherwise sorting resets
         
     }
 }
 
-- (IBAction)unmarkForArchiving:(id)sender {
+- (IBAction)untagForArchiving:(id)sender {
     NSIndexSet *selectedIndexes = [_resultTableView getClickedRowOrSelectedRows];
     NSArray *FSItems = [_resultTableViewController getFSItemsByIndexSet:selectedIndexes];
     for (FSItem *thisItem in FSItems) {
         [thisItem removeTagByPattern:ArchiveTag];
     }
-    [self runAnalyzer:_scanRoot];
+    [self runAnalyzer];
     [_resultTableViewController setTableContents:_analyzer.resultArray]; // dont just reload, otherwise sorting resets
 }
 
-- (IBAction)markForRemoval:(id)sender {
+- (IBAction)tagForRemoval:(id)sender {
     NSIndexSet *selectedIndexes = [_resultTableView getClickedRowOrSelectedRows];
     NSArray *FSItems = [_resultTableViewController getFSItemsByIndexSet:selectedIndexes];
     
@@ -448,8 +517,8 @@
     // warn if any folder is not empty
     if (includesNonEmpty) {
         NSAlert *alert = [[NSAlert alloc] init];
-        [alert setMessageText:@"Some folders are NOT EMPTY. Do you really want to mark them for removal?"];
-        [alert addButtonWithTitle:@"Mark For Removal"];
+        [alert setMessageText:@"Some folders are NOT EMPTY. Do you really want to tag them for removal?"];
+        [alert addButtonWithTitle:@"Tag For Removal"];
         [alert addButtonWithTitle:@"Cancel"];
         [alert beginSheetModalForWindow:_window completionHandler:^(NSInteger result) {
             if (result == NSAlertFirstButtonReturn) {
@@ -457,7 +526,7 @@
                     [thisItem setTagByPattern:DeleteTag];
                     [thisItem removeTagByPattern:ArchiveTag];
                 }
-                [self runAnalyzer:_scanRoot];
+                [self runAnalyzer];
                 [_resultTableViewController setTableContents:_analyzer.resultArray]; // dont just reload, otherwise sorting resets
             }
         }];
@@ -466,30 +535,28 @@
             [thisItem setTagByPattern:DeleteTag];
             [thisItem removeTagByPattern:ArchiveTag];
         }
-        [self runAnalyzer:_scanRoot];
+        [self runAnalyzer];
         [_resultTableViewController setTableContents:_analyzer.resultArray]; // dont just reload, otherwise sorting resets
     }
 }
 
-- (IBAction)unmarkForRemoval:(id)sender {
+- (IBAction)untagForRemoval:(id)sender {
     NSIndexSet *selectedIndexes = [_resultTableView getClickedRowOrSelectedRows];
     NSArray *FSItems = [_resultTableViewController getFSItemsByIndexSet:selectedIndexes];
     for (FSItem *thisItem in FSItems) {
         [thisItem removeTagByPattern:DeleteTag];
     }
-    [self runAnalyzer:_scanRoot];
+    [self runAnalyzer];
     [_resultTableViewController setTableContents:_analyzer.resultArray]; // dont just reload, otherwise sorting resets
 }
 
 
 // Tree Wide Ops
 
-- (IBAction)autoMarkForRemoval:(id)sender {
-    if ([_resultTableViewController.tableContents count] == 0)
-        return;
+- (IBAction)autoTagForRemoval:(id)sender {
     NSAlert *alert = [[NSAlert alloc] init];
-    [alert setMessageText:@"This will mark empty folders with archive flag for removal. Proceed?"];
-    [alert addButtonWithTitle:@"Auto Mark For Removal"];
+    [alert setMessageText:@"This will tag for REMOVAL all empty folders with archive tag. Proceed?"];
+    [alert addButtonWithTitle:@"Auto Tag For Removal"];
     [alert addButtonWithTitle:@"Cancel"];
     [alert beginSheetModalForWindow:_window completionHandler:^(NSInteger result) {
         if (result == NSAlertFirstButtonReturn) {
@@ -504,87 +571,20 @@
                     [thisItem removeTagByPattern:ArchiveTag];
                 }
             }
-
-            [self runAnalyzer:_scanRoot];
-            [_resultTableViewController setTableContents:_analyzer.resultArray]; // dont just reload, otherwise sorting resets
+            if ([self readTagSelectors] == 0) {
+                _tagArchiveButton.state = YES;
+                _tagRemovalButton.state = YES;
+                _tagCandidateButton.state = NO;
+                _tagCheckButton.state = NO;
+                [self tagButtonChanged:nil];
+            } else {
+                [self runAnalyzer];
+                [_resultTableViewController setTableContents:_analyzer.resultArray]; // dont just reload, otherwise sorting resets
+            }
         }
     }];
 }
 
-
-#pragma mark - Get List Data
-
-- (IBAction)getArchiveList:(id)sender {
-    [_listWindow orderFront:self];
-    [_listView setString:@"Folders Marked For Archiving:\n"];
-    [[_listView textStorage] setFont:[NSFont fontWithName:@"Menlo" size:13]];
-    [_listView insertText:@"----------------------------------------------------------\n"];
-    for (FSItem *thisItem in _scanRoot.directoryContents) {
-        if (thisItem == nil)
-            continue;
-        if ([[thisItem isDirectory] boolValue] == NO)
-            continue;
-        if ([[thisItem isDirectory] boolValue]) {
-            [self recurseAndAddToList:thisItem mode:0]; // mode=0 is for archiving
-        }
-    }
-}
-
-- (IBAction)getRemovalList:(id)sender {
-    [_listWindow orderFront:self];
-    [_listView setString:@"Folders Marked For Removal:\n"];
-    [_listView insertText:@"------------------------------------------------------\n"];
-    [[_listView textStorage] setFont:[NSFont fontWithName:@"Menlo" size:13]];
-    for (FSItem *thisItem in _scanRoot.directoryContents) {
-        if (thisItem == nil)
-            continue;
-        if ([[thisItem isDirectory] boolValue] == NO)
-            continue;
-        if ([[thisItem isDirectory] boolValue]) {
-            [self recurseAndAddToList:thisItem mode:1]; // mode=0 is for removal
-        }
-    }
-}
-
-- (NSString*)sizeStringWithFiller:(long long)size {
-    NSString *filler = @"                                                                 ";
-    NSString *fileSize = convertToFileSizeString(size);
-    int length = 13;
-    int remainingLength = length - (int)[fileSize length];
-    if (length < 0)
-        return @"";
-    return [NSString stringWithFormat:@"%@%@", fileSize, [filler substringToIndex:remainingLength]];
-}
-
-- (void)recurseAndAddToList:(FSItem*)folder mode:(int)mode {
-    BOOL isMarkedForRemoval = [[folder isMarkedForRemoval] boolValue];
-    BOOL isMarkedForArchiving = [[folder isMarkedForArchiving] boolValue];
-    BOOL willShow = (mode == 0 && isMarkedForArchiving) || (mode == 1 && isMarkedForRemoval);
-    
-    
-    if (willShow) {
-        NSString *rootPath = [folder.rootScanData.fileURL path];
-        NSString *simplePath = [NSString stringWithFormat:@"%@%@",
-                                [rootPath lastPathComponent],
-                                [folder.path substringFromIndex:[rootPath length]]];
-        [_listView insertText:[self sizeStringWithFiller:[folder.fileSize longLongValue]]];
-        [_listView insertText:simplePath];
-        if (isMarkedForRemoval && isMarkedForArchiving) {
-            if (mode == 0) {
-                [_listView insertText:@" ## Also marked for removal"];
-            }
-            if (mode == 1) {
-                [_listView insertText:@" ## Also marked for archiving"];
-            }
-        }
-        [_listView insertText:@"\n"];
-    }
-    for (FSItem *containingItem in folder.directoryContents) {
-        if ([[containingItem isDirectory] boolValue]) {
-            [self recurseAndAddToList:containingItem mode:mode];
-        }
-    }
-}
 
 
 #pragma mark - Dealloc

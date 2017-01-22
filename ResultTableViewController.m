@@ -156,10 +156,8 @@
         result = [tableView makeViewWithIdentifier:@"dateView" owner:self];
         result.textField.stringValue = @"_internal_error";
     }
-
     return result;
 }
-
 
 #pragma mark - Sorting
 
@@ -177,7 +175,7 @@
 }
 
 -(void)testSomething {
-    AppDelegate *appDelegate = (AppDelegate *)[[NSApplication sharedApplication] delegate];
+   // AppDelegate *appDelegate = (AppDelegate *)[[NSApplication sharedApplication] delegate];
     
 }
 

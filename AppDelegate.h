@@ -24,6 +24,7 @@
 
     NSURL *_scanRootURL;
     FSItem *_scanRoot;
+    FSItem *_displayRoot;
     long _maxDepth;
     int _ageDays;
     int _ageMonths;
@@ -36,7 +37,6 @@
     Scanner *_scanner;
 }
 
-
 // IB Outlets for controllers and View Objects
 @property (weak) IBOutlet ScanProgressController *scanProgressController;
 @property (weak) IBOutlet ResultTableViewController *resultTableViewController;
@@ -47,7 +47,8 @@
 @property (weak) IBOutlet NSPanel *inpectorPanel;
 @property (weak) IBOutlet ResultTableView *resultTableView;
 @property (weak) IBOutlet NSWindow *listWindow;
-@property IBOutlet NSTextView *listView;
+@property IBOutlet NSTextView *listView; // Deprecated
+@property (weak) IBOutlet NSPathControl *pathControl;
 
 // IB Outlets
 @property (weak) IBOutlet NSTextField *statusTextField;
@@ -73,7 +74,7 @@
 // IB Outlets for Menu
 @property (weak) IBOutlet NSMenuItem *showMainWindowMenuItem;
 @property (weak) IBOutlet NSMenuItem *showInspectorMenuItem;
-@property (weak) IBOutlet NSMenuItem *enterDebuggerMenuItem; // debug only
+@property (weak) IBOutlet NSMenuItem *enterDebuggerMenuItem;
 
 
 // IB User Actions
@@ -81,6 +82,8 @@
 - (IBAction)resultTableViewAction:(id)sender; // row clicked
 - (IBAction)scanExitButtonPressed:(id)sender;
 - (IBAction)showInFinder:(id)sender;
+- (IBAction)pathControlClicked:(id)sender;
+- (IBAction)parentFolderClicked:(id)sender;
 
 // Option change actions (reanalyze)
 - (IBAction)optionShowDirectoriesWithoutDatesChanged:(id)sender;
@@ -94,22 +97,17 @@
 - (IBAction)invertSizeFilterButtonChanged:(id)sender;
 - (IBAction)tagButtonChanged:(id)sender;
 
-
-
 // IB Menu Actions
 - (IBAction)showMainMenu:(id)sender;
 - (IBAction)enterDebugger:(id)sender;
 - (IBAction)showInspector:(id)sender;
 
-- (IBAction)markForArchiving:(id)sender;
-- (IBAction)unmarkForArchiving:(id)sender;
-- (IBAction)markForRemoval:(id)sender;
-- (IBAction)unmarkForRemoval:(id)sender;
+- (IBAction)tagForArchiving:(id)sender;
+- (IBAction)untagForArchiving:(id)sender;
+- (IBAction)tagForRemoval:(id)sender;
+- (IBAction)untagForRemoval:(id)sender;
 
-- (IBAction)autoMarkForRemoval:(id)sender;
-
-- (IBAction)getArchiveList:(id)sender;
-- (IBAction)getRemovalList:(id)sender;
+- (IBAction)autoTagForRemoval:(id)sender;
 
 // Notification Center
 -(void)updateResultTableView:(NSNotification*)aNotification;

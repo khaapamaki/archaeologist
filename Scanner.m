@@ -13,7 +13,7 @@
 
 -(void)main {
     // does scanning here
-    _scanTree = [[FSItem alloc] initWithURL:_scanRoot depth:-1 foldersOnly:YES];
+    _scanTree = [[FSItem alloc] initWithURL:_scanRootURL depth:-1 foldersOnly:YES];
  
     // was cancelled?
     if (_scanTree.isCancelled == NO && [self isCancelled] == NO) {
@@ -31,7 +31,7 @@
 
 -(instancetype) initWithURL:(NSURL*)anURL {
     if (self = [super init]) {
-        _scanRoot = anURL;
+        _scanRootURL = anURL;
         _tree = nil;
     }
     return self;

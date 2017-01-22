@@ -8,6 +8,7 @@
 
 #import "Analyzer.h"
 
+
 @implementation Analyzer
 
 -(void)scanDirectory:(FSItem*)fsItem olderThan:(NSDate*)dateTreshold minSize:(long)sizeTreshold minDepth:(long)minDepth maxDepth:(long)maxDepth {

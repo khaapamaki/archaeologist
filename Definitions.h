@@ -8,6 +8,15 @@
 
 #import <Foundation/Foundation.h>
 
+#define APPNAME @"Archaelogist"
+#define APPDESC @"Folder Template Manager"
+
+#define DISPLAYTIMEINTERVAL 0.17
+#define ARCHIVETAG @"_to_archive"
+#define DELETETAG @"_to_be_DELETED"
+#define CANDIDATETAG @"_archive_candidate"
+#define CHECKTAG @"_archive_check"
+
 @interface Definitions : NSObject
 
 typedef enum {

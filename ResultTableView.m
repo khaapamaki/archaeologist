@@ -19,9 +19,7 @@
 @implementation ResultTableView
 
 -(void)awakeFromNib {
-    
 }
-
 
 #pragma mark - Keyboard Events
 
@@ -57,16 +55,16 @@
     
     if (key == kVK_ANSI_A || [chars isEqualToString:@"a"] || [chars isEqualToString:@"A"] ) {
         if (flags == 0 || [chars isEqualToString:@"a"]) {
-            [appDelegate markForArchiving:self];
+            [appDelegate tagForArchiving:self];
         } else if (flags == NSShiftKeyMask || [chars isEqualToString:@"A"]) {
-            [appDelegate unmarkForArchiving:self];
+            [appDelegate untagForArchiving:self];
         } 
     }
     if (key == kVK_ANSI_D || [chars isEqualToString:@"d"] || [chars isEqualToString:@"D"]) {
         if (flags == 0 || [chars isEqualToString:@"d"]) {
-            [appDelegate markForRemoval:self];
+            [appDelegate tagForRemoval:self];
         } else if (flags == NSShiftKeyMask || [chars isEqualToString:@"D"]) {
-            [appDelegate unmarkForRemoval:self];
+            [appDelegate untagForRemoval:self];
         }
     }
     if (key == kVK_ANSI_C && (flags & NSCommandKeyMask) != 0) {

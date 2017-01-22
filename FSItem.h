@@ -22,10 +22,6 @@
 @property (atomic) NSNumber *isDirectory;
 @property (atomic) NSNumber *fileSize;
 @property (atomic) NSArray *directoryContents; // nil if not read
-@property (atomic) NSNumber *isMarkedForArchiving;
-@property (atomic) NSNumber *isMarkedForRemoval;
-@property (atomic) NSNumber *isMarkedAsCandidate;
-@property (atomic) NSNumber *isMarkedForChecking;
 @property (atomic) NSNumber *tags;
 @property (atomic) FSScanData *scanData;
 @property (atomic) FSScanData *rootScanData;
@@ -60,15 +56,12 @@
 -(instancetype)initWithURL:(NSURL*)fileURL depth:(long)depth foldersOnly:(BOOL)foldersOnly;
 
 // set/unset archive flags
--(BOOL)markForArchiving;
--(BOOL)unmarkForArchiving;
--(BOOL)markForRemoval;
--(BOOL)unmarkForRemoval;
 -(BOOL)setTag:(NSString *)tagString;
 -(BOOL)setTagByPattern:(TagType)tag;
 -(BOOL)removeTag:(NSString *)tagString;
 -(BOOL)removeTagByPattern:(TagType)tag;
 -(BOOL)hasTag:(NSString *)tagString;
+
 -(void)printDebugInfo;
 -(void)printProgressInfoWithNewLine:(BOOL)newLine;
 
