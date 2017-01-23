@@ -27,3 +27,4 @@ NSString* minSecString(NSTimeInterval time);
 NSString* sizeStringWithFiller(long long size, short length);
 NSString* getTagString(NSNumber *tagAsNSNumber);
 NSString* extractRootFromPath(NSString *rootPath, NSString *path);
+NSString* fillToLength(NSString * str, short length);

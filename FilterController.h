@@ -22,7 +22,6 @@
 @property (weak) IBOutlet NSTextField *maxLevelTextField;
 @property (weak) IBOutlet NSSlider *maxLevelSlider;
 
-
 @property (weak) IBOutlet NSTextField *yearsTextField;
 @property (weak) IBOutlet NSSlider *yearsSlider;
 @property (weak) IBOutlet NSTextField *monthsTextField;
@@ -45,7 +44,6 @@
 @property (weak) IBOutlet NSTextField *sizeSliderTitle;
 @property (weak) IBOutlet NSButton *options1;
 @property (weak) IBOutlet NSButton *options2;
-@property (weak) IBOutlet NSButton *options3;
 @property (weak) IBOutlet NSButton *options4;
 @property (weak) IBOutlet NSButton *options5;
 @property (weak) IBOutlet NSButton *options6;

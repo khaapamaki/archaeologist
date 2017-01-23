@@ -111,14 +111,20 @@
         if (rootPath == nil) {
             rootPath = [thisItem.rootScanData.fileURL path];
         }
-        //[copyContentString appendString:sizeStringWithFiller([thisItem.fileSize longLongValue], 13)];
+        NSString *tagStr = getTagString(thisItem.tags);
+
+        tagStr = fillToLength(tagStr, 5);
+        [copyContentString appendString:getTagString(thisItem.tags)];
         
+        [copyContentString appendString:@" \t"];
         [copyContentString appendString:extractRootFromPath(rootPath, thisItem.path)];
+//        [copyContentString appendString:@"\t"];
+//        [copyContentString appendString:convertToFileSizeString([thisItem.fileSize longLongValue])];
         [copyContentString appendString:@"\n"];
     }
 
     [[NSPasteboard generalPasteboard] clearContents];
-    [[NSPasteboard generalPasteboard] setString:copyContentString forType:NSStringPboardType];
+    [[NSPasteboard generalPasteboard] setString:copyContentString forType:NSPasteboardTypeString]; //  NSStringPboardType];
 }
 
 -(NSArray*)getFSItemsByIndexSet:(NSIndexSet *)indexes {

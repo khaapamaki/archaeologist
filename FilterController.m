@@ -166,7 +166,6 @@
     [_invertSizeButton setEnabled:isEnabled];
     [_options1 setEnabled:isEnabled];
     [_options2 setEnabled:isEnabled];
-    [_options3 setEnabled:(isEnabled && [_options2 state] == NO)];
     [_options4 setEnabled:isEnabled];
     [_options5 setEnabled:(isEnabled && [_options4 state])];
     [_options6 setEnabled:(isEnabled && [_options4 state])];
