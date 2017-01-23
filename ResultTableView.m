@@ -70,7 +70,7 @@
         }
     }
     
-    if (key == kVK_ANSI_D || [chars isEqualToString:@"x"] || [chars isEqualToString:@"X"]) {
+    if (key == kVK_ANSI_X || [chars isEqualToString:@"x"] || [chars isEqualToString:@"X"]) {
         if (flags == 0 || [chars isEqualToString:@"x"]) {
             [appDelegate tagForChecking:self];
         } else if (flags == NSShiftKeyMask || [chars isEqualToString:@"X"]) {
