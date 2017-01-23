@@ -19,20 +19,18 @@
 @implementation ResultTableView
 
 -(void)awakeFromNib {
+    _bypassKeyDown = NO;
 }
 
 #pragma mark - Keyboard Events
 
 -(BOOL)acceptsFirstResponder{;
-//    printStdErrLine(@"ResultTableView accepts first responder");
     return YES;
 }
 -(BOOL)resignFirstResponder{
-//        printStdErrLine(@"ResultTableView resigns first responder");
     return YES;
 }
 -(BOOL)becomeFirstResponder{
-//        printStdErrLine(@"ResultTableView becomes first responder");
     return YES;
 }
 
@@ -45,13 +43,6 @@
 
     unsigned short key = [event keyCode];
     NSString *chars = [event characters];
-    if (key == kVK_ANSI_C) {
-        
-    }
-    
-    if (key == kVK_ANSI_X) {
-        
-    }
     
     if (key == kVK_ANSI_A || [chars isEqualToString:@"a"] || [chars isEqualToString:@"A"] ) {
         if (flags == 0 || [chars isEqualToString:@"a"]) {
@@ -69,6 +60,41 @@
     }
     if (key == kVK_ANSI_C && (flags & NSCommandKeyMask) != 0) {
         [self copyToClipboard:self];
+    }
+    
+    if (key == kVK_ANSI_C || [chars isEqualToString:@"c"] || [chars isEqualToString:@"C"] ) {
+        if (flags == 0 || [chars isEqualToString:@"c"]) {
+            [appDelegate tagAsCandidate:self];
+        } else if (flags == NSShiftKeyMask || [chars isEqualToString:@"C"]) {
+            [appDelegate untagAsCandidate:self];
+        }
+    }
+    
+    if (key == kVK_ANSI_D || [chars isEqualToString:@"x"] || [chars isEqualToString:@"X"]) {
+        if (flags == 0 || [chars isEqualToString:@"x"]) {
+            [appDelegate tagForChecking:self];
+        } else if (flags == NSShiftKeyMask || [chars isEqualToString:@"X"]) {
+            [appDelegate untagForChecking:self];
+        }
+    }
+    
+    if (key == kVK_ANSI_C && (flags & NSCommandKeyMask) != 0) {
+        [self copyToClipboard:self];
+    }
+    
+    if (_bypassKeyDown == NO && (key == kVK_Space || [chars isEqualToString:@" "])) {
+        [[appDelegate bypassFiltersButton] setState:YES];
+        [appDelegate bypassFiltersClicked:self];
+        _bypassKeyDown = YES;
+    }
+}
+
+- (void)keyUp:(NSEvent *)event {
+    if (_bypassKeyDown) {
+        AppDelegate *appDelegate = (AppDelegate *)[[NSApplication sharedApplication] delegate];
+        [[appDelegate bypassFiltersButton] setState:NO];
+        [appDelegate bypassFiltersClicked:self];
+        _bypassKeyDown = NO;
     }
 }
 

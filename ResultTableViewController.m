@@ -103,14 +103,18 @@
             if (folder != nil) {
                 result.textField.stringValue = [item objectForKey:@"tags"];
             } else {
-                result.textField.stringValue = @"_err";
+                result.textField.stringValue = @"";
             }
        
         } else if ([tableColumn.identifier isEqualToString:@"date"]) {
             result = [tableView makeViewWithIdentifier:@"dateView" owner:self];
-            NSDate *dateObject = [item objectForKey:@"date"];
-            result.textField.objectValue = dateObject;
-
+            id dateObject = [item objectForKey:@"date"];
+            if (dateObject != nil && dateObject != [NSNull null]) {
+                result.textField.objectValue = dateObject;
+            } else {
+                result.textField.objectValue = @"";
+            }
+            
         } else if ([tableColumn.identifier isEqualToString:@"size"]) {
             result = [tableView makeViewWithIdentifier:@"sizeView" owner:self];
             if ([[item objectForKey:@"fsitem"] contentsFullyRead]) {
@@ -135,13 +139,13 @@
             NSMutableString *str = [NSMutableString new];
             if (fsitem.isLonkeroFolder) {
                 //[str appendString:[fsitem.isLonkeroRoot boolValue] ? @"R" : @""];
-                [str appendString:[fsitem.isLonkeroParent boolValue] ? @"Parent" : @""];
+                [str appendString:([fsitem.isLonkeroParent boolValue] || [fsitem.isLonkeroRoot boolValue]) ? @"Parent" : @""];
                 [str appendString:[fsitem.isLonkeroMaster boolValue] ? @"Master" : @""];
                 int test = [fsitem.isLonkeroRoot boolValue] ? 1 : 0
                 + [fsitem.isLonkeroMaster boolValue] ? 1 : 0
                 + [fsitem.isLonkeroParent boolValue] ? 1 : 0;
                 if (test == 0) {
-                    [str appendString:@"_err"];
+                    [str appendString:@""];
                 }
             }
 
@@ -149,12 +153,12 @@
             
         }  else {
             result = [tableView makeViewWithIdentifier:@"dateView" owner:self];
-            result.textField.stringValue = @"_err";
+            result.textField.stringValue = @""; //error
         }
         
     } else {
         result = [tableView makeViewWithIdentifier:@"dateView" owner:self];
-        result.textField.stringValue = @"_internal_error";
+        result.textField.stringValue = @""; // error
     }
     return result;
 }

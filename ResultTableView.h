@@ -11,7 +11,7 @@
 #import "Definitions.h"
 
 @interface ResultTableView : NSTableView {
-    
+    BOOL _bypassKeyDown;
 }
 
 @property (nonatomic) NSMutableArray *tableContents;

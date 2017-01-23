@@ -18,11 +18,11 @@
 
 #pragma mark - NSApplication
 
--(void)applicationDidBecomeActive:(NSNotification *)notification {
+- (void)applicationDidBecomeActive:(NSNotification *)notification {
     
 }
 
--(BOOL)applicationShouldHandleReopen:(NSApplication *)sender hasVisibleWindows:(BOOL)flag {
+- (BOOL)applicationShouldHandleReopen:(NSApplication *)sender hasVisibleWindows:(BOOL)flag {
     
     if (flag == YES) {
         
@@ -34,7 +34,7 @@
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     // Insert code here to initialize your application
-
+    
     _scanRootURL = nil;
     _maxDepth = 0;
     _ageDays = 0;
@@ -62,12 +62,11 @@
      "May exceed maximum level limit in search of Lonkero deployment master folder."];
     [_invertDateFiltersButton setToolTip:@"Shows folders that are newer than age treshold. Otherwise shows older folders."];
     [_invertSizeFilterButton setToolTip:@"Shows smaller folders than size treshold. Otherwise shows bigger folders."];
-    [_optionDatelessDirectoriesAreOld setToolTip:@"Folders that have no date are considered as older than age limit."];
-    [_optionShowDirectoriesWithoutDates setToolTip:@"If a folder has no files in it or in any subdirectory, the folder's age cannot be determined. "
+    [_optionHideDirectoriesWithoutDates setToolTip:@"If a folder has no files in it or in any subdirectory, the folder's age cannot be determined. "
      @"By default dateless folders are skipped from processing. By turning this option on, it is possible to show these too. "];
-    [_optionLonkeroStopAtParent setToolTip:@"Do not show succeeding subfolders, if parent folder has a match. "
-     @"This prevents displaying multiple levels from the same directory branch. "
-     @"If 'Skip Lonkero Parents' option is set, Lonkero master folders are shown instead of parent levels."];
+    [_optionShowSubdirectories setToolTip:@"Show matching subfolders, even if parent folder has a match."];
+    //     @"This prevents displaying multiple levels from the same directory branch. "
+    //     @"If 'Skip Lonkero Parents' option is set, Lonkero master folders are shown instead of parent levels."];
     [_optionLonkeroRespectMaxLimit setToolTip:@"By default maximum level limit may be exceed in Lonkero Compability Mode, because it tries "
      @"to reach the deployment master folder. With this option it is possible to force maximum level resctriction to be used."];
     [_optionLonkeroFoldersOnly setToolTip:@"Do not show other than folders with Lonkero metadata stored among them."];
@@ -78,7 +77,11 @@
                                                object:nil];
     
     [_pathControl setURL:nil];
-    
+    [_bypassFiltersButton setState:NO];
+    _bypassFilters = NO;
+    _statusTextField.stringValue = [NSString stringWithFormat:@"Total size of displayed folders: %@",
+                                    convertToFileSizeString(0)];
+
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
@@ -192,34 +195,38 @@
     if (_analyzer == nil) {
         _analyzer = [Analyzer new];
     }
-    [self readFilterParameters];
-    TagType tagSelector = [self readTagSelectors];
-    if (tagSelector == NoTag) {
-        NSDate *treshold = dateSinceNow(_ageYears, _ageMonths, _ageDays);
-        int mode = 0;
-        mode |= _optionLonkeroMode.state == YES ? FCALonkeroMode : 0;
-        mode |= _invertDateFiltersButton.state == YES ? FCAInvertDateFilter : 0;
-        mode |= _invertSizeFilterButton.state == YES ? FCAInvertSizeFilter : 0;
-        mode |= _optionLonkeroFoldersOnly.state == YES ? FCALonkeroOnly : 0;
-        mode |= _optionLonkeroRespectMaxLimit.state == YES ? FCALonkeroRespectMaxLimit : 0;
-        mode |= _optionShowDirectoriesWithoutDates.state == YES ? FCASelectDirectoriesWithoutDates : 0;
-        mode |= _optionLonkeroSearchMasters.state == YES ? FCALonkeroSearchMasters : 0;
-        mode |= _optionLonkeroStopAtParent.state == YES ? FCALonkeroStopAtParent : 0;
-        mode |= _optionDatelessDirectoriesAreOld.state == YES ? FCADatelessDirectoriesAreOld : 0;
-        
-        [_analyzer scanDirectory:_displayRoot olderThan:treshold minSize:_minSize minDepth:_minDepth maxDepth:_maxDepth mode:mode];
-
+    _bypassFilters = _bypassFiltersButton.state;
+    
+    if (_bypassFilters == NO) {
+        [self readFilterParameters];
+        TagType tagSelector = [self readTagSelectors];
+        if (tagSelector == NoTag) {
+            NSDate *treshold = dateSinceNow(_ageYears, _ageMonths, _ageDays);
+            int mode = 0;
+            mode |= _optionLonkeroMode.state == YES ? FCALonkeroMode : 0;
+            mode |= _invertDateFiltersButton.state == YES ? FCAInvertDateFilter : 0;
+            mode |= _invertSizeFilterButton.state == YES ? FCAInvertSizeFilter : 0;
+            mode |= _optionLonkeroFoldersOnly.state == YES ? FCALonkeroOnly : 0;
+            mode |= _optionLonkeroRespectMaxLimit.state == YES ? FCALonkeroRespectMaxLimit : 0;
+            mode |= _optionHideDirectoriesWithoutDates.state == YES ? FCAHideDirectoriesWithoutDates : 0;
+            mode |= _optionLonkeroSearchMasters.state == YES ? FCALonkeroSearchMasters : 0;
+            mode |= _optionShowSubdirectories.state == YES ? FCAShowSubDirectories : 0;
+            
+            [_analyzer scanDirectory:_displayRoot olderThan:treshold minSize:_minSize minDepth:_minDepth maxDepth:_maxDepth mode:mode];
+            
+        } else {
+            // To show tagged items instead of filtered
+            [_analyzer scanTaggedItems:_scanRoot tags:tagSelector];
+        }
     } else {
-        // To show tagged items instead of filtered
-        [_analyzer scanTaggedItems:_scanRoot tags:tagSelector];
+        [_analyzer scanDirectory:_displayRoot olderThan:nil minSize:0 minDepth:1 maxDepth:1 mode:0];
     }
     
     if ([_analyzer.resultArray count] > 0 || YES) {
         _statusTextField.stringValue = [NSString stringWithFormat:@"Total size of displayed folders: %@",
                                         convertToFileSizeString(_analyzer.scanData.byteCount)];
-    } else {
-        _statusTextField.stringValue = @"";
     }
+    
 }
 
 #pragma mark - Display
@@ -265,8 +272,7 @@
     NSLog(@"Degugger!");
 }
 
-- (IBAction)optionShowDirectoriesWithoutDatesChanged:(id)sender {
-    _optionDatelessDirectoriesAreOld.enabled = _optionShowDirectoriesWithoutDates.state;
+- (IBAction)optionHideDirectoriesWithoutDatesChanged:(id)sender {
     [self runAnalyzer];
     [_resultTableViewController setTableContents:_analyzer.resultArray];
 }
@@ -295,12 +301,7 @@
     [_resultTableViewController setTableContents:_analyzer.resultArray];
 }
 
-- (IBAction)optionStopAtParentChanged:(id)sender {
-    [self runAnalyzer];
-    [_resultTableViewController setTableContents:_analyzer.resultArray];
-}
-
-- (IBAction)optionDatelessDirectoriesAreOldChanged:(id)sender {
+- (IBAction)optionShowSubdirectoriesChanged:(id)sender {
     [self runAnalyzer];
     [_resultTableViewController setTableContents:_analyzer.resultArray];
 }
@@ -339,7 +340,6 @@
     }
 }
 
-/// WIP
 - (void)doubleClick:(id)object {
     if (_resultTableViewController.resultTableView == nil) {
         return;
@@ -402,7 +402,7 @@
 - (IBAction)pathControlClicked:(id)sender {
     NSURL *clickURL = [[_pathControl clickedPathItem] URL];
     FSItem *lookForParent = _displayRoot;
-
+    
     // find correspondinf FSItem for clicked path.
     BOOL found = NO;
     while (lookForParent != nil && found == NO) {
@@ -419,6 +419,7 @@
     }
     [_pathControl setURL:_displayRoot.fileURL];
     if ([self readTagSelectors] != 0) {
+        // exit from tag view mode
         _tagCheckButton.state = NO;
         _tagArchiveButton.state = NO;
         _tagRemovalButton.state = NO;
@@ -428,11 +429,12 @@
         [self runAnalyzer];
         [_resultTableViewController setTableContents:_analyzer.resultArray]; // or reload?
     }
-
+    
 }
 
 - (IBAction)parentFolderClicked:(id)sender {
     if ([self readTagSelectors] != 0) {
+        // exit from tag view mode
         _displayRoot = _scanRoot;
         _tagCheckButton.state = NO;
         _tagArchiveButton.state = NO;
@@ -450,7 +452,31 @@
     }
 }
 
-
+- (IBAction)bypassFiltersClicked:(id)sender {
+    _bypassFilters = _bypassFiltersButton.state;
+    if ([self readTagSelectors] == 0 || _bypassFilters) {
+        [_pathControl setURL:_displayRoot.fileURL];
+    }
+    else {
+        [_pathControl setURL:_scanRoot.fileURL];
+    }
+    if (_bypassFilters) {
+        [_filterController setFiltersAndOptionsEnabled:NO];
+        _tagCheckButton.enabled = NO;
+        _tagArchiveButton.enabled = NO;
+        _tagRemovalButton.enabled = NO;
+        _tagCandidateButton.enabled = NO;
+    } else {
+        [_filterController setFiltersAndOptionsEnabled:YES];
+        _tagCheckButton.enabled = YES;
+        _tagArchiveButton.enabled = YES;
+        _tagRemovalButton.enabled = YES;
+        _tagCandidateButton.enabled = YES;
+    }
+    
+    [self runAnalyzer];
+    [_resultTableViewController setTableContents:_analyzer.resultArray]; // or reload?
+}
 
 #pragma mark - Marking
 
@@ -474,8 +500,10 @@
         [alert beginSheetModalForWindow:_window completionHandler:^(NSInteger result) {
             if (result == NSAlertFirstButtonReturn) {
                 for (FSItem *thisItem in FSItems) {
-                    [thisItem setTagByPattern:ArchiveTag];
-                    [thisItem removeTagByPattern:DeleteTag];
+                    if ([thisItem setTagByPattern:ArchiveTag]) {
+                        [thisItem removeTagByPattern:DeleteTag];
+                        [thisItem removeTagByPattern:CandidateTag];
+                    }
                 }
                 [self runAnalyzer];
                 [_resultTableViewController setTableContents:_analyzer.resultArray]; // dont just reload, otherwise sorting resets
@@ -483,8 +511,10 @@
         }];
     } else {
         for (FSItem *thisItem in FSItems) {
-            [thisItem setTagByPattern:ArchiveTag];
-            [thisItem removeTagByPattern:DeleteTag];
+            if ([thisItem setTagByPattern:ArchiveTag]) {
+                [thisItem removeTagByPattern:DeleteTag];
+                [thisItem removeTagByPattern:CandidateTag];
+            }
         }
         [self runAnalyzer];
         [_resultTableViewController setTableContents:_analyzer.resultArray]; // dont just reload, otherwise sorting resets
@@ -523,8 +553,10 @@
         [alert beginSheetModalForWindow:_window completionHandler:^(NSInteger result) {
             if (result == NSAlertFirstButtonReturn) {
                 for (FSItem *thisItem in FSItems) {
-                    [thisItem setTagByPattern:DeleteTag];
-                    [thisItem removeTagByPattern:ArchiveTag];
+                    if ([thisItem setTagByPattern:DeleteTag]) {
+                        [thisItem removeTagByPattern:ArchiveTag];
+                        [thisItem removeTagByPattern:CandidateTag];
+                    }
                 }
                 [self runAnalyzer];
                 [_resultTableViewController setTableContents:_analyzer.resultArray]; // dont just reload, otherwise sorting resets
@@ -532,8 +564,10 @@
         }];
     } else {
         for (FSItem *thisItem in FSItems) {
-            [thisItem setTagByPattern:DeleteTag];
-            [thisItem removeTagByPattern:ArchiveTag];
+            if ([thisItem setTagByPattern:DeleteTag]) {
+                [thisItem removeTagByPattern:ArchiveTag];
+                [thisItem removeTagByPattern:CandidateTag];
+            }
         }
         [self runAnalyzer];
         [_resultTableViewController setTableContents:_analyzer.resultArray]; // dont just reload, otherwise sorting resets
@@ -550,6 +584,78 @@
     [_resultTableViewController setTableContents:_analyzer.resultArray]; // dont just reload, otherwise sorting resets
 }
 
+- (IBAction)tagAsCandidate:(id)sender {
+    NSIndexSet *selectedIndexes = [_resultTableView getClickedRowOrSelectedRows];
+    NSArray *FSItems = [_resultTableViewController getFSItemsByIndexSet:selectedIndexes];
+    
+    BOOL includesEmpty = NO;
+    for (FSItem *thisItem in FSItems) {
+        if ([[thisItem fileSize] longLongValue] == 0 && [thisItem contentsFullyRead] == YES) {
+            includesEmpty = YES;
+            break;
+        }
+    }
+    
+    // warn if any folder is not empty
+    if (includesEmpty) {
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert setMessageText:@"Some folders are empty. Do you really want to tag them as archive candidates?"];
+        [alert addButtonWithTitle:@"Tag As Candidate"];
+        [alert addButtonWithTitle:@"Cancel"];
+        [alert beginSheetModalForWindow:_window completionHandler:^(NSInteger result) {
+            if (result == NSAlertFirstButtonReturn) {
+                for (FSItem *thisItem in FSItems) {
+                    if ([thisItem setTagByPattern:CandidateTag]) {
+                        [thisItem removeTagByPattern:ArchiveTag];
+                        [thisItem removeTagByPattern:DeleteTag];
+                    }
+                }
+                [self runAnalyzer];
+                [_resultTableViewController setTableContents:_analyzer.resultArray]; // dont just reload, otherwise sorting resets
+            }
+        }];
+    } else {
+        for (FSItem *thisItem in FSItems) {
+            if ([thisItem setTagByPattern:CandidateTag]) {
+                [thisItem removeTagByPattern:ArchiveTag];
+                [thisItem removeTagByPattern:DeleteTag];
+            }
+        }
+        [self runAnalyzer];
+        [_resultTableViewController setTableContents:_analyzer.resultArray]; // dont just reload, otherwise sorting resets
+    }
+}
+
+- (IBAction)untagAsCandidate:(id)sender {
+    NSIndexSet *selectedIndexes = [_resultTableView getClickedRowOrSelectedRows];
+    NSArray *FSItems = [_resultTableViewController getFSItemsByIndexSet:selectedIndexes];
+    for (FSItem *thisItem in FSItems) {
+        [thisItem removeTagByPattern:CandidateTag];
+    }
+    [self runAnalyzer];
+    [_resultTableViewController setTableContents:_analyzer.resultArray]; // dont just reload, otherwise sorting resets
+}
+
+- (IBAction)tagForChecking:(id)sender {
+    NSIndexSet *selectedIndexes = [_resultTableView getClickedRowOrSelectedRows];
+    NSArray *FSItems = [_resultTableViewController getFSItemsByIndexSet:selectedIndexes];
+    for (FSItem *thisItem in FSItems) {
+        [thisItem setTagByPattern:CheckTag];
+    }
+    [self runAnalyzer];
+    [_resultTableViewController setTableContents:_analyzer.resultArray]; // dont just reload, otherwise sorting resets
+}
+
+- (IBAction)untagForChecking:(id)sender {
+    NSIndexSet *selectedIndexes = [_resultTableView getClickedRowOrSelectedRows];
+    NSArray *FSItems = [_resultTableViewController getFSItemsByIndexSet:selectedIndexes];
+    for (FSItem *thisItem in FSItems) {
+        [thisItem removeTagByPattern:CheckTag];
+    }
+    [self runAnalyzer];
+    [_resultTableViewController setTableContents:_analyzer.resultArray]; // dont just reload, otherwise sorting resets
+}
+
 
 // Tree Wide Ops
 
@@ -561,17 +667,30 @@
     [alert beginSheetModalForWindow:_window completionHandler:^(NSInteger result) {
         if (result == NSAlertFirstButtonReturn) {
             //NSArray *shownRows = [_resultTableViewController tableContents];
+            int counter = 0;
             for (FSItem *thisItem in _scanRoot.directoryContents) {
                 if (thisItem == nil)
                     continue;
                 if ([[thisItem isDirectory] boolValue] == NO)
                     continue;
                 if (([thisItem.tags shortValue] & ArchiveTag) != 0 && [[thisItem fileSize] longLongValue] == 0) {
-                    [thisItem setTagByPattern:DeleteTag];
-                    [thisItem removeTagByPattern:ArchiveTag];
+                    if ([thisItem setTagByPattern:DeleteTag]) {
+                        [thisItem removeTagByPattern:ArchiveTag];
+                        counter++;
+                    }
                 }
             }
-            if ([self readTagSelectors] == 0) {
+            
+            NSAlert *alert = [[NSAlert alloc] init];
+            NSString *msg = [NSString stringWithFormat:@"Tagged %i folder%@ for removal.", counter, counter == 1 ? @"" : @"s"];
+            [alert setMessageText:msg];
+            [alert addButtonWithTitle:@"Ok"];
+            [alert beginSheetModalForWindow:_window completionHandler:^(NSInteger result) {
+                
+            }];
+            
+            if ([self readTagSelectors] == 0 && counter > 0) {
+                // auto set tag view mode, if not already in it
                 _tagArchiveButton.state = YES;
                 _tagRemovalButton.state = YES;
                 _tagCandidateButton.state = NO;
@@ -581,10 +700,10 @@
                 [self runAnalyzer];
                 [_resultTableViewController setTableContents:_analyzer.resultArray]; // dont just reload, otherwise sorting resets
             }
+            
         }
     }];
 }
-
 
 
 #pragma mark - Dealloc

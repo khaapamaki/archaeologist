@@ -180,5 +180,6 @@ NSString* getTagString(NSNumber *tagAsNSNumber) {
     return [NSString stringWithString:tagString];
 }
 NSString* extractRootFromPath(NSString *rootPath, NSString *path) {
-    return [NSString stringWithFormat:@"%@%@", [rootPath lastPathComponent], [path substringFromIndex:[rootPath length]]];
+    return [NSString stringWithFormat:@"%@", [path substringFromIndex:[rootPath length] + 1]];
+//    return [NSString stringWithFormat:@"%@%@", [rootPath lastPathComponent], [path substringFromIndex:[rootPath length]]];
 }

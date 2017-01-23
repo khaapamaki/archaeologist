@@ -35,6 +35,7 @@
     NSWindow *scanSheet;
     NSOperationQueue *_opQueue;
     Scanner *_scanner;
+    BOOL _bypassFilters;
 }
 
 // IB Outlets for controllers and View Objects
@@ -55,21 +56,20 @@
 @property (weak) IBOutlet NSButton *invertDateFiltersButton;
 @property (weak) IBOutlet NSButton *invertSizeFilterButton;
 
-@property (weak) IBOutlet NSButton *optionShowDirectoriesWithoutDates;
-@property (weak) IBOutlet NSButton *optionDatelessDirectoriesAreOld;
+@property (weak) IBOutlet NSButton *optionHideDirectoriesWithoutDates;
 @property (weak) IBOutlet NSButton *optionLonkeroMode;
 @property (weak) IBOutlet NSButton *optionLonkeroFoldersOnly;
 @property (weak) IBOutlet NSButton *optionLonkeroRespectMaxLimit;
 @property (weak) IBOutlet NSButton *optionLonkeroSearchMasters;
-@property (weak) IBOutlet NSButton *optionLonkeroStopAtParent;
+@property (weak) IBOutlet NSButton *optionShowSubdirectories; //
 @property (weak) IBOutlet NSButton *tagArchiveButton;
 @property (weak) IBOutlet NSButton *tagRemovalButton;
 @property (weak) IBOutlet NSButton *tagCandidateButton;
 @property (weak) IBOutlet NSButton *tagCheckButton;
+@property (weak) IBOutlet NSButton *bypassFiltersButton;
 
 @property (weak) IBOutlet NSTextField *scanningTextField;
 @property (weak) IBOutlet NSButton *scanExitButton;
-
 
 // IB Outlets for Menu
 @property (weak) IBOutlet NSMenuItem *showMainWindowMenuItem;
@@ -84,15 +84,15 @@
 - (IBAction)showInFinder:(id)sender;
 - (IBAction)pathControlClicked:(id)sender;
 - (IBAction)parentFolderClicked:(id)sender;
+- (IBAction)bypassFiltersClicked:(id)sender;
 
 // Option change actions (reanalyze)
-- (IBAction)optionShowDirectoriesWithoutDatesChanged:(id)sender;
+- (IBAction)optionHideDirectoriesWithoutDatesChanged:(id)sender;
 - (IBAction)optionLonkeroModeChanged:(id)sender;
 - (IBAction)optionOnlyLonkeroFoldersChanged:(id)sender;
 - (IBAction)optionSearchMastersChanged:(id)sender;
 - (IBAction)optionLonkeroRespectMaxLimitChanged:(id)sender;
-- (IBAction)optionStopAtParentChanged:(id)sender;
-- (IBAction)optionDatelessDirectoriesAreOldChanged:(id)sender;
+- (IBAction)optionShowSubdirectoriesChanged:(id)sender;
 - (IBAction)invertDateFiltersButtonChanged:(id)sender;
 - (IBAction)invertSizeFilterButtonChanged:(id)sender;
 - (IBAction)tagButtonChanged:(id)sender;
@@ -106,6 +106,10 @@
 - (IBAction)untagForArchiving:(id)sender;
 - (IBAction)tagForRemoval:(id)sender;
 - (IBAction)untagForRemoval:(id)sender;
+- (IBAction)tagAsCandidate:(id)sender;
+- (IBAction)untagAsCandidate:(id)sender;
+- (IBAction)tagForChecking:(id)sender;
+- (IBAction)untagForChecking:(id)sender;
 
 - (IBAction)autoTagForRemoval:(id)sender;
 

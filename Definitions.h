@@ -35,7 +35,7 @@ typedef enum {
 } ModifierKey;
 
 typedef enum {
-    FCASelectDirectoriesWithoutDates        = 1 << 0,
+    FCAHideDirectoriesWithoutDates          = 1 << 0,
     FCAInvertDateFilter                     = 1 << 1,
     FCAInvertSizeFilter                     = 1 << 2,
     FCALonkeroMode                          = 1 << 3,
@@ -44,8 +44,7 @@ typedef enum {
     FCALonkeroRespectMaxLimit               = 1 << 6,
     FCALonkeroSearchMasters                 = 1 << 7,
     FCAByteCountStopped                     = 1 << 8,
-    FCADatelessDirectoriesAreOld            = 1 << 9,
-    FCALonkeroStopAtParent                  = 1 << 10
+    FCAShowSubDirectories                   = 1 << 9
 } FCAAnalyzeMode;
 
 /*

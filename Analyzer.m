@@ -26,7 +26,7 @@
 // internal use only, result/item arrays must be emptied before
 -(void)scanDirectoryInnerLoop:(FSItem*)fsItem olderThan:(NSDate*)dateTreshold minSize:(long)sizeTreshold minDepth:(long)minDepth maxDepth:(long)maxDepth mode:(int)mode subLevel:(int)subLevel {
     
-    BOOL selectDirectoriesWithoutDates = (mode & FCASelectDirectoriesWithoutDates) > 0;
+    BOOL hideDirectoriesWithoutDates = (mode & FCAHideDirectoriesWithoutDates) > 0;
     BOOL lonkeroMode = (mode & FCALonkeroMode) > 0;
     BOOL invertDateFilters = (mode & FCAInvertDateFilter) > 0;
     BOOL invertSizeFilter = (mode & FCAInvertSizeFilter) > 0;
@@ -36,18 +36,24 @@
     BOOL lonkeroRespectLevels = (mode & FCALonkeroRespectMaxLimit) > 0;
     BOOL lonkeroOnly = (mode & FCALonkeroOnly) > 0;
     BOOL noByteCount = (mode & FCAByteCountStopped) > 0;
-    BOOL stopAtFirstMatch = (mode & FCALonkeroStopAtParent) > 0;
-    BOOL datelessAreOld = (mode & FCADatelessDirectoriesAreOld) > 0;
+    BOOL stopAtFirstMatch = (mode & FCAShowSubDirectories) == 0;
     BOOL found = NO;
     BOOL lonkeroDontContinue = NO; // to enable showing 1 non-lonkero folder but not going further
     
     if ([fsItem.isDirectory boolValue] == YES) {
         BOOL dateSelect = NO;
         
-        if (fsItem.scanData.latestRecursiveFileDate == nil) {
-            dateSelect = datelessAreOld;
+        if (dateTreshold != nil) {
+            if (fsItem.scanData.latestRecursiveFileDate != nil) {
+                dateSelect = [fsItem.scanData.latestRecursiveFileDate compare:dateTreshold] == NSOrderedAscending;
+                if (invertDateFilters) {
+                    dateSelect = !dateSelect;
+                }
+            } else {
+                 dateSelect = !hideDirectoriesWithoutDates;
+            }
         } else {
-            dateSelect = [fsItem.scanData.latestRecursiveFileDate compare:dateTreshold] == NSOrderedAscending;
+            dateSelect = YES;
         }
         
         BOOL lonkeroContinue = NO;
@@ -98,15 +104,7 @@
         } else {
             sizeSelect = [fsItem.fileSize longValue] >= sizeTreshold;
         }
-        
-        if (invertDateFilters) {
-            dateSelect = !dateSelect;
-        }
-        
-        if (fsItem.scanData.latestRecursiveFileDate == nil && !selectDirectoriesWithoutDates) {
-            dateSelect = NO;
-        }
-        
+    
         if (dateSelect && sizeSelect && currentRelativeDepth >= minDepth && !lonkeroStop && !lonkeroSkipCurrent)
         {
             // found something to show
@@ -187,7 +185,7 @@
 }
 
 -(NSDictionary*)makeDictionaryForTableViewRow:(FSItem*)fsItem subLevel:(int)subLevel {
-    NSString *rootPath = [fsItem.rootScanData.fileURL path];
+    NSString *rootPath = _rootDirectory.path; //[fsItem.rootScanData.fileURL path];
     NSString *simplePath = extractRootFromPath(rootPath, fsItem.path);
     
     id theDate = fsItem.scanData.latestRecursiveFileDate != nil ? fsItem.scanData.latestRecursiveFileDate : [NSNull null];
