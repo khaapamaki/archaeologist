@@ -81,7 +81,7 @@
     _bypassFilters = NO;
     _statusTextField.stringValue = [NSString stringWithFormat:@"Total size of displayed folders: %@",
                                     convertToFileSizeString(0)];
-
+    
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
@@ -215,14 +215,16 @@
             mode |= _optionHideDirectoriesWithoutDates.state == YES ? FCAHideDirectoriesWithoutDates : 0;
             mode |= _optionLonkeroSearchMasters.state == YES ? FCALonkeroSearchMasters : 0;
             mode |= _optionShowSubdirectories.state == YES ? FCAShowSubDirectories : 0;
-            
+            [[_resultTableViewController.resultTableView tableColumnWithIdentifier:@"lonkero"] setHidden:!_optionLonkeroMode.state];
             [_analyzer scanDirectory:_displayRoot olderThan:dateThreshold minSize:_minSize minDepth:_minDepth maxDepth:_maxDepth mode:mode];
+
             
         } else {
             // To show tagged items instead of filtered
             [_analyzer scanTaggedItems:_scanRoot tags:tagSelector];
         }
     } else {
+        [[_resultTableViewController.resultTableView tableColumnWithIdentifier:@"lonkero"] setHidden:YES];
         [_analyzer scanDirectory:_displayRoot olderThan:nil minSize:0 minDepth:1 maxDepth:1 mode:0];
     }
     
@@ -230,7 +232,7 @@
         _statusTextField.stringValue = [NSString stringWithFormat:@"Total size of displayed folders: %@",
                                         convertToFileSizeString(_analyzer.scanData.byteCount)];
     }
-    
+
 }
 
 #pragma mark - Display
