@@ -6,6 +6,16 @@
 //  Copyright © 2017 Kati Haapamäki. All rights reserved.
 //
 
+
+// ToDo:
+// GUI Crashes when selecting min folder level = 0
+// ParentMaster -> P/M
+// Bypass without lonkero mode
+// Respect max levels default = off
+// Mieti uudestaan optionsit lonkeron suhteen
+// Mahdollisuus selata kansioita skannaamatta
+
+
 #import <Foundation/Foundation.h>
 
 #define APPNAME @"Archaelogist"

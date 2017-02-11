@@ -45,7 +45,11 @@
         
         if (dateTreshold != nil) {
             if (fsItem.scanData.latestRecursiveFileDate != nil) {
-                dateSelect = [fsItem.scanData.latestRecursiveFileDate compare:dateTreshold] == NSOrderedAscending;
+                NSDate *latestRecursiveDate = [NSDate dateWithoutTime:fsItem.scanData.latestRecursiveFileDate];
+                NSDate *dateThresholdWithoutTime = [NSDate dateWithoutTime:dateTreshold];
+                
+                
+                dateSelect = [latestRecursiveDate compare:dateThresholdWithoutTime] == NSOrderedAscending;
                 if (invertDateFilters) {
                     dateSelect = !dateSelect;
                 }

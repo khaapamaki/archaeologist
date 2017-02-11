@@ -10,7 +10,7 @@
 #import "FSItem.h"
 #import "UtilityFunctions.h"
 #import "Definitions.h"
-
+#import "NSDate+DateExtra.h"
 
 @interface Analyzer : NSObject {
     BOOL _lonkeroMode;

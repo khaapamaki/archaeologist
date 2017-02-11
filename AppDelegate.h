@@ -19,6 +19,7 @@
 #import "Scanner.h"
 #import "ResultTableView.h"
 #import "Definitions.h"
+#import "NSDate+DateExtra.h"
 
 @interface AppDelegate : NSObject <NSApplicationDelegate> {
 

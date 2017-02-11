@@ -201,7 +201,7 @@
         [self readFilterParameters];
         TagType tagSelector = [self readTagSelectors];
         if (tagSelector == NoTag) {
-            NSDate *treshold = dateSinceNow(_ageYears, _ageMonths, _ageDays);
+            NSDate *dateThreshold = dateSinceNow(_ageYears, _ageMonths, _ageDays);
             int mode = 0;
             mode |= _optionLonkeroMode.state == YES ? FCALonkeroMode : 0;
             mode |= _invertDateFiltersButton.state == YES ? FCAInvertDateFilter : 0;
@@ -212,7 +212,7 @@
             mode |= _optionLonkeroSearchMasters.state == YES ? FCALonkeroSearchMasters : 0;
             mode |= _optionShowSubdirectories.state == YES ? FCAShowSubDirectories : 0;
             
-            [_analyzer scanDirectory:_displayRoot olderThan:treshold minSize:_minSize minDepth:_minDepth maxDepth:_maxDepth mode:mode];
+            [_analyzer scanDirectory:_displayRoot olderThan:dateThreshold minSize:_minSize minDepth:_minDepth maxDepth:_maxDepth mode:mode];
             
         } else {
             // To show tagged items instead of filtered
