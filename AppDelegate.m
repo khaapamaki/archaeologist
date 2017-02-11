@@ -149,6 +149,9 @@
                                 if ([_analyzer.resultArray count] > 0) {
                                     [_inspector inspectDirectoryItem:_scanRoot];
                                 }
+                                // set path as initial sorting criterion
+                                NSSortDescriptor* sortDescriptor = [[NSSortDescriptor alloc] initWithKey: @"path" ascending: YES];
+                                [_resultTableView setSortDescriptors:[NSArray arrayWithObject:sortDescriptor]];
                             }
                         }];
         
@@ -303,6 +306,11 @@
 }
 
 - (IBAction)optionShowSubdirectoriesChanged:(id)sender {
+    if (_optionShowSubdirectories.state == YES) {
+        // sort by path because it's only good sorting for displaying subfolders among their parents
+        NSSortDescriptor* sortDescriptor = [[NSSortDescriptor alloc] initWithKey: @"path" ascending: YES];
+        [_resultTableView setSortDescriptors:[NSArray arrayWithObject:sortDescriptor]];
+    }
     [self runAnalyzer];
     [_resultTableViewController setTableContents:_analyzer.resultArray];
 }

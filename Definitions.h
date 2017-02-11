@@ -8,18 +8,16 @@
 
 
 // ToDo:
-// GUI Crashes when selecting min folder level = 0
-// ParentMaster -> P/M
-// Bypass without lonkero mode
-// Respect max levels default = off
+// ParentMaster -> "P/M"
+// Bypass unselects lonkero mode
 // Mieti uudestaan optionsit lonkeron suhteen
 // Mahdollisuus selata kansioita skannaamatta
-
+// Yritä pitää valitut rivit filtereiden muokkaamisen jälkeen
 
 #import <Foundation/Foundation.h>
 
 #define APPNAME @"Archaelogist"
-#define APPDESC @"Folder Template Manager"
+#define APPDESC @""
 
 #define DISPLAYTIMEINTERVAL 0.17
 #define ARCHIVETAG @"_to_archive"
