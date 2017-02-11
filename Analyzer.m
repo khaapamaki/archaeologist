@@ -11,20 +11,20 @@
 
 @implementation Analyzer
 
--(void)scanDirectory:(FSItem*)fsItem olderThan:(NSDate*)dateTreshold minSize:(long)sizeTreshold minDepth:(long)minDepth maxDepth:(long)maxDepth {
-    [self scanDirectory:fsItem olderThan:dateTreshold minSize:sizeTreshold minDepth:(long)minDepth maxDepth:maxDepth mode:0];
+-(void)scanDirectory:(FSItem*)fsItem olderThan:(NSDate*)dateThreshold minSize:(long)sizeThreshold minDepth:(long)minDepth maxDepth:(long)maxDepth {
+    [self scanDirectory:fsItem olderThan:dateThreshold minSize:sizeThreshold minDepth:(long)minDepth maxDepth:maxDepth mode:0];
 }
 
--(void)scanDirectory:(FSItem*)fsItem olderThan:(NSDate*)dateTreshold minSize:(long)sizeTreshold minDepth:(long)minDepth maxDepth:(long)maxDepth mode:(int)mode {
+-(void)scanDirectory:(FSItem*)fsItem olderThan:(NSDate*)dateThreshold minSize:(long)sizeThreshold minDepth:(long)minDepth maxDepth:(long)maxDepth mode:(int)mode {
     _rootDirectory = fsItem;
     [_resultArray removeAllObjects];
     _scanData = [[FSScanData alloc] init];
     _scanData.fileURL = fsItem.fileURL;
-    [self scanDirectoryInnerLoop:fsItem olderThan:dateTreshold minSize:sizeTreshold minDepth:minDepth maxDepth:maxDepth mode:mode subLevel:0];
+    [self scanDirectoryInnerLoop:fsItem olderThan:dateThreshold minSize:sizeThreshold minDepth:minDepth maxDepth:maxDepth mode:mode subLevel:0];
 }
 
 // internal use only, result/item arrays must be emptied before
--(void)scanDirectoryInnerLoop:(FSItem*)fsItem olderThan:(NSDate*)dateTreshold minSize:(long)sizeTreshold minDepth:(long)minDepth maxDepth:(long)maxDepth mode:(int)mode subLevel:(int)subLevel {
+-(void)scanDirectoryInnerLoop:(FSItem*)fsItem olderThan:(NSDate*)dateThreshold minSize:(long)sizeThreshold minDepth:(long)minDepth maxDepth:(long)maxDepth mode:(int)mode subLevel:(int)subLevel {
     
     BOOL hideDirectoriesWithoutDates = (mode & FCAHideDirectoriesWithoutDates) > 0;
     BOOL lonkeroMode = (mode & FCALonkeroMode) > 0;
@@ -39,14 +39,16 @@
     BOOL stopAtFirstMatch = (mode & FCAShowSubDirectories) == 0;
     BOOL found = NO;
     BOOL lonkeroDontContinue = NO; // to enable showing 1 non-lonkero folder but not going further
-    
+    if (minDepth == 0) {
+        int stop = 1;
+    }
     if ([fsItem.isDirectory boolValue] == YES) {
         BOOL dateSelect = NO;
         
-        if (dateTreshold != nil) {
+        if (dateThreshold != nil) {
             if (fsItem.scanData.latestRecursiveFileDate != nil) {
                 NSDate *latestRecursiveDate = [NSDate dateWithoutTime:fsItem.scanData.latestRecursiveFileDate];
-                NSDate *dateThresholdWithoutTime = [NSDate dateWithoutTime:dateTreshold];
+                NSDate *dateThresholdWithoutTime = [NSDate dateWithoutTime:dateThreshold];
                 
                 
                 dateSelect = [latestRecursiveDate compare:dateThresholdWithoutTime] == NSOrderedAscending;
@@ -99,14 +101,14 @@
         
         BOOL sizeSelect;
         if (invertSizeFilter) {
-            if (sizeTreshold == 0) {
+            if (sizeThreshold == 0) {
                 sizeSelect = [fsItem.fileSize longValue] == 0;
             } else {
-                sizeSelect = !([fsItem.fileSize longValue] >= sizeTreshold);
+                sizeSelect = !([fsItem.fileSize longValue] >= sizeThreshold);
             }
             
         } else {
-            sizeSelect = [fsItem.fileSize longValue] >= sizeTreshold;
+            sizeSelect = [fsItem.fileSize longValue] >= sizeThreshold;
         }
     
         if (dateSelect && sizeSelect && currentRelativeDepth >= minDepth && !lonkeroStop && !lonkeroSkipCurrent)
@@ -143,8 +145,8 @@
             for (FSItem * subItem in fsItem.directoryContents) {
                 if ([subItem.isDirectory boolValue] == YES) {
                     [self scanDirectoryInnerLoop:subItem
-                                       olderThan:dateTreshold
-                                         minSize:sizeTreshold
+                                       olderThan:dateThreshold
+                                         minSize:sizeThreshold
                                         minDepth:(long)minDepth
                                         maxDepth:maxDepth-1
                                             mode:newMode

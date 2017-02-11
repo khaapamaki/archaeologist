@@ -60,8 +60,8 @@
     
     [_optionLonkeroMode setToolTip:@"Uses Lonkero metadata to prevent showing folders inside folder structure. "
      "May exceed maximum level limit in search of Lonkero deployment master folder."];
-    [_invertDateFiltersButton setToolTip:@"Shows folders that are newer than age treshold. Otherwise shows older folders."];
-    [_invertSizeFilterButton setToolTip:@"Shows smaller folders than size treshold. Otherwise shows bigger folders."];
+    [_invertDateFiltersButton setToolTip:@"Shows folders that are newer than age threshold. Otherwise shows older folders."];
+    [_invertSizeFilterButton setToolTip:@"Shows smaller folders than size threshold. Otherwise shows bigger folders."];
     [_optionHideDirectoriesWithoutDates setToolTip:@"If a folder has no files in it or in any subdirectory, the folder's age cannot be determined. "
      @"By default dateless folders are skipped from processing. By turning this option on, it is possible to show these too. "];
     [_optionShowSubdirectories setToolTip:@"Show matching subfolders, even if parent folder has a match."];
@@ -177,6 +177,7 @@
     _minSize = _filterController.minSize;
     _minDepth = _filterController.minLevelTextField.intValue;
 }
+
 
 - (TagType)readTagSelectors {
     TagType tags = 0;

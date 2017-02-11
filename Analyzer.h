@@ -20,8 +20,8 @@
 @property (nonatomic) NSMutableArray *resultArray; // dictionary array for table view
 @property (readonly) FSScanData *scanData;
 
--(void)scanDirectory:(FSItem*)fsItem olderThan:(NSDate*)dateTreshold minSize:(long)sizeTreshold minDepth:(long)minDepth maxDepth:(long)maxDepth;
--(void)scanDirectory:(FSItem*)fsItem olderThan:(NSDate*)dateTreshold minSize:(long)sizeTreshold minDepth:(long)minDepth maxDepth:(long)maxDepth mode:(int)mode;
+-(void)scanDirectory:(FSItem*)fsItem olderThan:(NSDate*)dateThreshold minSize:(long)sizeThreshold minDepth:(long)minDepth maxDepth:(long)maxDepth;
+-(void)scanDirectory:(FSItem*)fsItem olderThan:(NSDate*)dateThreshold minSize:(long)sizeThreshold minDepth:(long)minDepth maxDepth:(long)maxDepth mode:(int)mode;
 -(void)scanTaggedItems:(FSItem*)fsItem tags:(TagType)tagPattern;
 
 @end

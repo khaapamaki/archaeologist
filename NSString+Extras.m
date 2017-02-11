@@ -199,7 +199,7 @@
     [result replaceOccurrencesOfString:@"." withString:@"\\." options:0 range:NSMakeRange(0, [result length])];
     [result replaceOccurrencesOfString:@"*" withString:@".*" options:0 range:NSMakeRange(0, [result length])];
     [result replaceOccurrencesOfString:@"?" withString:@"." options:0 range:NSMakeRange(0, [result length])];
-    if ([[result substringFromIndex:[result length]-1] isEqualToString:@"/"]) {
+    if ([[result substringFromIndex:[result length] - 1] isEqualToString:@"/"]) {
         result = [NSMutableString stringWithString:[result substringToIndex:[result length]-1]];
         [result appendString:@"$"];
     }

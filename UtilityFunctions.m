@@ -83,7 +83,7 @@ long long getFileSizeWithString(NSString *fileSizeString) {
     long long multiplier = 1;
     
     if (fileSizeString != nil) {
-        if ([[lowerCaseString substringFromIndex:[lowerCaseString length]-1 ] isEqualToString:@"b"] && [lowerCaseString length] > 1) {
+        if ([[lowerCaseString substringFromIndex:[lowerCaseString length] - 1] isEqualToString:@"b"] && [lowerCaseString length] > 1) {
             lowerCaseString = [lowerCaseString substringToIndex:[lowerCaseString length] -1];
         }
         
