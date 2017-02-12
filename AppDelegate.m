@@ -233,8 +233,9 @@
         _statusTextField.stringValue = [NSString stringWithFormat:@"Total size of displayed folders: %@",
                                         convertToFileSizeString(_analyzer.scanData.byteCount)];
     }
-
+  
 }
+
 
 #pragma mark - Display
 

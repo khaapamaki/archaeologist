@@ -205,8 +205,6 @@
     return rowDictionary;
 }
 
-
-
 -(instancetype)init{
     if (self = [super init]) {
         _resultArray = [[NSMutableArray alloc] initWithCapacity:200];

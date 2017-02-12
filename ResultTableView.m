@@ -118,8 +118,8 @@
         
         [copyContentString appendString:@" \t"];
         [copyContentString appendString:extractRootFromPath(rootPath, thisItem.path)];
-//        [copyContentString appendString:@"\t"];
-//        [copyContentString appendString:convertToFileSizeString([thisItem.fileSize longLongValue])];
+        // [copyContentString appendString:@"\t"];
+        // [copyContentString appendString:convertToFileSizeString([thisItem.fileSize longLongValue])];
         [copyContentString appendString:@"\n"];
     }
 
@@ -156,4 +156,5 @@
     NSIndexSet *selectedIndexes = [self selectedRowIndexes];
     return selectedIndexes;
 }
+
 @end

@@ -12,4 +12,5 @@
 
 +(NSDate *)dateWithoutTime:(NSDate *)myDate;
 +(NSDate *)endOfTheDayForDate:(NSDate *)myDate;
+
 @end

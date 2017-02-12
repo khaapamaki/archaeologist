@@ -65,6 +65,7 @@
     }
     [_tableContents sortUsingDescriptors:_lastUsedSortDescriptors];
     _resultTableView.tableContents = _tableContents;
+    
     [_resultTableView reloadData];
 }
 
@@ -171,16 +172,10 @@
     [tableView reloadData];
 }
 
-
 #pragma mark - Display
 
 -(void)reload {
     [_resultTableView reloadData];
-}
-
--(void)testSomething {
-   // AppDelegate *appDelegate = (AppDelegate *)[[NSApplication sharedApplication] delegate];
-    
 }
 
 @end

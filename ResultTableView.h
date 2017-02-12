@@ -17,7 +17,6 @@
 @property (nonatomic) NSMutableArray *tableContents;
 
 - (IBAction)copyToClipboard:(id)sender;
-
 - (NSIndexSet*)getClickedRowOrSelectedRows;
 
 @end
