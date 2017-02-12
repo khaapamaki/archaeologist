@@ -9,7 +9,7 @@
 
 // ToDo:
 // ParentMaster -> "P/M"
-// Bypass unselects lonkero mode
+// Bypass unselects lonkero mode - done: test
 // Mieti uudestaan optionsit lonkeron suhteen
 // Mahdollisuus selata kansioita skannaamatta
 // Yritä pitää valitut rivit filtereiden muokkaamisen jälkeen

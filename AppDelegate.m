@@ -199,6 +199,7 @@
     if (_analyzer == nil) {
         _analyzer = [Analyzer new];
     }
+    
     _bypassFilters = _bypassFiltersButton.state;
     
     if (_bypassFilters == NO) {
@@ -206,17 +207,17 @@
         TagType tagSelector = [self readTagSelectors];
         if (tagSelector == NoTag) {
             NSDate *dateThreshold = dateSinceNow(_ageYears, _ageMonths, _ageDays);
-            int mode = 0;
-            mode |= _optionLonkeroMode.state == YES ? FCALonkeroMode : 0;
-            mode |= _invertDateFiltersButton.state == YES ? FCAInvertDateFilter : 0;
-            mode |= _invertSizeFilterButton.state == YES ? FCAInvertSizeFilter : 0;
-            mode |= _optionLonkeroFoldersOnly.state == YES ? FCALonkeroOnly : 0;
-            mode |= _optionLonkeroRespectMaxLimit.state == YES ? FCALonkeroRespectMaxLimit : 0;
-            mode |= _optionHideDirectoriesWithoutDates.state == YES ? FCAHideDirectoriesWithoutDates : 0;
-            mode |= _optionLonkeroSearchMasters.state == YES ? FCALonkeroSearchMasters : 0;
-            mode |= _optionShowSubdirectories.state == YES ? FCAShowSubDirectories : 0;
+            int options = 0;
+            options |= _optionLonkeroMode.state == YES ? FCALonkeroMode : 0;
+            options |= _invertDateFiltersButton.state == YES ? FCAInvertDateFilter : 0;
+            options |= _invertSizeFilterButton.state == YES ? FCAInvertSizeFilter : 0;
+            options |= _optionLonkeroFoldersOnly.state == YES ? FCALonkeroOnly : 0;
+            options |= _optionLonkeroRespectMaxLimit.state == YES ? FCALonkeroRespectMaxLimit : 0;
+            options |= _optionHideDirectoriesWithoutDates.state == YES ? FCAHideDirectoriesWithoutDates : 0;
+            options |= _optionLonkeroSearchMasters.state == YES ? FCALonkeroSearchMasters : 0;
+            options |= _optionShowSubdirectories.state == YES ? FCAShowSubDirectories : 0;
             [[_resultTableViewController.resultTableView tableColumnWithIdentifier:@"lonkero"] setHidden:!_optionLonkeroMode.state];
-            [_analyzer scanDirectory:_displayRoot olderThan:dateThreshold minSize:_minSize minDepth:_minDepth maxDepth:_maxDepth mode:mode];
+            [_analyzer scanDirectory:_displayRoot olderThan:dateThreshold minSize:_minSize minDepth:_minDepth maxDepth:_maxDepth options:options];
 
             
         } else {
@@ -225,7 +226,7 @@
         }
     } else {
         [[_resultTableViewController.resultTableView tableColumnWithIdentifier:@"lonkero"] setHidden:YES];
-        [_analyzer scanDirectory:_displayRoot olderThan:nil minSize:0 minDepth:1 maxDepth:1 mode:0];
+        [_analyzer scanDirectory:_displayRoot olderThan:nil minSize:0 minDepth:1 maxDepth:1 options:0];
     }
     
     if ([_analyzer.resultArray count] > 0 || YES) {

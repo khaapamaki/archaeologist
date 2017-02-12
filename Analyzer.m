@@ -12,36 +12,34 @@
 @implementation Analyzer
 
 -(void)scanDirectory:(FSItem*)fsItem olderThan:(NSDate*)dateThreshold minSize:(long)sizeThreshold minDepth:(long)minDepth maxDepth:(long)maxDepth {
-    [self scanDirectory:fsItem olderThan:dateThreshold minSize:sizeThreshold minDepth:(long)minDepth maxDepth:maxDepth mode:0];
+    [self scanDirectory:fsItem olderThan:dateThreshold minSize:sizeThreshold minDepth:(long)minDepth maxDepth:maxDepth options:0];
 }
 
--(void)scanDirectory:(FSItem*)fsItem olderThan:(NSDate*)dateThreshold minSize:(long)sizeThreshold minDepth:(long)minDepth maxDepth:(long)maxDepth mode:(int)mode {
+-(void)scanDirectory:(FSItem*)fsItem olderThan:(NSDate*)dateThreshold minSize:(long)sizeThreshold minDepth:(long)minDepth maxDepth:(long)maxDepth options:(int)options {
     _rootDirectory = fsItem;
     [_resultArray removeAllObjects];
     _scanData = [[FSScanData alloc] init];
     _scanData.fileURL = fsItem.fileURL;
-    [self scanDirectoryInnerLoop:fsItem olderThan:dateThreshold minSize:sizeThreshold minDepth:minDepth maxDepth:maxDepth mode:mode subLevel:0];
+    [self scanDirectoryInnerLoop:fsItem olderThan:dateThreshold minSize:sizeThreshold minDepth:minDepth maxDepth:maxDepth options:options subLevel:0];
 }
 
 // internal use only, result/item arrays must be emptied before
--(void)scanDirectoryInnerLoop:(FSItem*)fsItem olderThan:(NSDate*)dateThreshold minSize:(long)sizeThreshold minDepth:(long)minDepth maxDepth:(long)maxDepth mode:(int)mode subLevel:(int)subLevel {
+-(void)scanDirectoryInnerLoop:(FSItem*)fsItem olderThan:(NSDate*)dateThreshold minSize:(long)sizeThreshold minDepth:(long)minDepth maxDepth:(long)maxDepth options:(int)options subLevel:(int)subLevel {
     
-    BOOL hideDirectoriesWithoutDates = (mode & FCAHideDirectoriesWithoutDates) > 0;
-    BOOL lonkeroMode = (mode & FCALonkeroMode) > 0;
-    BOOL invertDateFilters = (mode & FCAInvertDateFilter) > 0;
-    BOOL invertSizeFilter = (mode & FCAInvertSizeFilter) > 0;
+    BOOL hideDirectoriesWithoutDates = (options & FCAHideDirectoriesWithoutDates) > 0;
+    BOOL lonkeroMode = (options & FCALonkeroMode) > 0;
+    BOOL invertDateFilters = (options & FCAInvertDateFilter) > 0;
+    BOOL invertSizeFilter = (options & FCAInvertSizeFilter) > 0;
     long currentRelativeDepth = [[[fsItem path] pathComponents] count] - [[[_rootDirectory path] pathComponents] count];
-    BOOL stopOnNextNonLonkeroFolder = (mode & FCALonkeroStopOnNextNonLonkeroFolder) > 0;
-    BOOL lonkeroSearchForMaster = (mode & FCALonkeroSearchMasters) > 0;
-    BOOL lonkeroRespectLevels = (mode & FCALonkeroRespectMaxLimit) > 0;
-    BOOL lonkeroOnly = (mode & FCALonkeroOnly) > 0;
-    BOOL noByteCount = (mode & FCAByteCountStopped) > 0;
-    BOOL stopAtFirstMatch = (mode & FCAShowSubDirectories) == 0;
+    BOOL stopOnNextNonLonkeroFolder = (options & FCALonkeroStopOnNextNonLonkeroFolder) > 0;
+    BOOL lonkeroSearchForMaster = (options & FCALonkeroSearchMasters) > 0;
+    BOOL lonkeroRespectLevels = (options & FCALonkeroRespectMaxLimit) > 0;
+    BOOL lonkeroOnly = (options & FCALonkeroOnly) > 0;
+    BOOL noByteCount = (options & FCAByteCountStopped) > 0;
+    BOOL stopAtFirstMatch = (options & FCAShowSubDirectories) == 0;
     BOOL found = NO;
     BOOL lonkeroDontContinue = NO; // to enable showing 1 non-lonkero folder but not going further
-    if (minDepth == 0) {
-        int stop = 1;
-    }
+
     if ([fsItem.isDirectory boolValue] == YES) {
         BOOL dateSelect = NO;
         
@@ -133,10 +131,10 @@
         if ((found == NO || !stopAtFirstMatch) && secondarySizeSelect && !lastLevel && !lonkeroStop && !lonkeroDontContinue)
         {
             int newSubLevel = subLevel;
-            int newMode = mode;
+            int newMode = options;
             if (found == YES) { // is current item shown and still going further..
                 newSubLevel++;
-                newMode = mode |= found ? FCAByteCountStopped : 0; // stop byte count at succeeding levels
+                newMode = options |= found ? FCAByteCountStopped : 0; // stop byte count at succeeding levels
             }
             if (isLonkeroFolder && lonkeroMode && isMaster && !isParent) {
                 newMode |= (newMode | FCALonkeroStopOnNextNonLonkeroFolder);
@@ -149,7 +147,7 @@
                                          minSize:sizeThreshold
                                         minDepth:(long)minDepth
                                         maxDepth:maxDepth-1
-                                            mode:newMode
+                                            options:newMode
                                         subLevel:newSubLevel];
                 }
             }
