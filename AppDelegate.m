@@ -1,3 +1,4 @@
+
 //
 //  AppDelegate.m
 //  Folder Content Analyzer
@@ -81,7 +82,9 @@
     _bypassFilters = NO;
     _statusTextField.stringValue = [NSString stringWithFormat:@"Total size of displayed folders: %@",
                                     convertToFileSizeString(0)];
-    
+    [_searchField setNextKeyView:_resultTableView];
+    [_resultTableView setNextKeyView:_searchField];
+
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
@@ -179,6 +182,7 @@
     _ageYears = _filterController.yearsTextField.intValue;
     _minSize = _filterController.minSize;
     _minDepth = _filterController.minLevelTextField.intValue;
+    _searchText = _filterController.searchField.stringValue;
 }
 
 
@@ -217,7 +221,14 @@
             options |= _optionLonkeroSearchMasters.state == YES ? FCALonkeroSearchMasters : 0;
             options |= _optionShowSubdirectories.state == YES ? FCAShowSubDirectories : 0;
             [[_resultTableViewController.resultTableView tableColumnWithIdentifier:@"lonkero"] setHidden:!_optionLonkeroMode.state];
-            [_analyzer scanDirectory:_displayRoot olderThan:dateThreshold minSize:_minSize minDepth:_minDepth maxDepth:_maxDepth options:options];
+            [_analyzer scanDirectory:_displayRoot
+                           olderThan:dateThreshold
+                             minSize:_minSize
+                            minDepth:_minDepth
+                            maxDepth:_maxDepth
+                             options:options
+                          textFilter:_searchText]
+            ;
 
             
         } else {
@@ -226,7 +237,7 @@
         }
     } else {
         [[_resultTableViewController.resultTableView tableColumnWithIdentifier:@"lonkero"] setHidden:YES];
-        [_analyzer scanDirectory:_displayRoot olderThan:nil minSize:0 minDepth:1 maxDepth:1 options:0];
+        [_analyzer scanDirectory:_displayRoot olderThan:nil minSize:0 minDepth:1 maxDepth:1 options:0 textFilter:@""];
     }
     
     if ([_analyzer.resultArray count] > 0 || YES) {

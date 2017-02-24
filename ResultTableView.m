@@ -1,5 +1,5 @@
 //
-//  MainView.m
+//  ResultTableView.h
 //  Archaelogist
 //
 //  Created by Kati Haapamäki on 18.1.2017.
@@ -124,7 +124,7 @@
     }
 
     [[NSPasteboard generalPasteboard] clearContents];
-    [[NSPasteboard generalPasteboard] setString:copyContentString forType:NSPasteboardTypeString]; //  NSStringPboardType];
+    [[NSPasteboard generalPasteboard] setString:copyContentString forType:NSPasteboardTypeString]; // NSStringPboardType];
 }
 
 -(NSArray*)getFSItemsByIndexSet:(NSIndexSet *)indexes {
@@ -156,5 +156,20 @@
     NSIndexSet *selectedIndexes = [self selectedRowIndexes];
     return selectedIndexes;
 }
+
+//-(NSArray*)visibleRows {
+//    NSRect rect = [self visibleRect];
+//    NSRange rowIndexes = [self rowsInRect:rect];
+//    NSInteger firstVisibleRowIndex = rowIndexes.location;
+//    NSInteger lastVisibleRowIndexes = rowIndexes.location + rowIndexes.length - 1;
+//    if (firstVisibleRowIndex < 0 || lastVisibleRowIndexes < firstVisibleRowIndex) {
+//        return [NSArray new];
+//    }
+//    NSMutableArray *rows = [NSMutableArray arrayWithCapacity:(lastVisibleRowIndexes - firstVisibleRowIndex + 1)];
+//    for (NSUInteger i = firstVisibleRowIndex; i <= lastVisibleRowIndexes; i++) {
+//        [rows addObject:[_tableContents objectAtIndex:i]];
+//    }
+//    return [NSArray arrayWithArray:rows];
+//}
 
 @end

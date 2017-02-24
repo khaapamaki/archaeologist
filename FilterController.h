@@ -8,6 +8,8 @@
 
 #import <Cocoa/Cocoa.h>
 #import "UtilityFunctions.h"
+#import "SearchField.h"
+#import "ResultTableView.h"
 
 @interface FilterController : NSObject {
     
@@ -48,7 +50,8 @@
 @property (weak) IBOutlet NSButton *options5;
 @property (weak) IBOutlet NSButton *options6;
 @property (weak) IBOutlet NSButton *options7;
-
+@property (weak) IBOutlet SearchField *searchField;
+@property (weak) IBOutlet ResultTableView *resultTableView;
 
 - (IBAction)levelTextFieldChanged:(id)sender;
 - (IBAction)levelSliderChanged:(id)sender;
@@ -62,6 +65,9 @@
 - (IBAction)daysSliderChanged:(id)sender;
 - (IBAction)sizeTextFieldChanged:(id)sender;
 - (IBAction)sizeSliderChanged:(id)sender;
+- (IBAction)searchFieldChanged:(id)sender;
+
 - (void)setFiltersAndOptionsEnabled:(BOOL)isEnabled;
+//- (BOOL)control:(NSControl *)control textShouldEndEditing:(NSText *)fieldEditor;
 
 @end

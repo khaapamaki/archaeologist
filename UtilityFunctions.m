@@ -150,16 +150,6 @@ NSString* minSecString(NSTimeInterval time) {
     
 }
 
-//NSString* sizeStringWithFiller(long long size, short length) {
-//    NSString *filler = @"                                                                 ";
-//    //use this: [@"" stringByPaddingToLength:pref withString:@"-" startingAtIndex:0]
-//    NSString *fileSize = convertToFileSizeString(size);
-//    int remainingLength = length - (int)[fileSize length];
-//    if (length < 0)
-//        return @"";
-//    return [NSString stringWithFormat:@"%@%@", fileSize, [filler substringToIndex:remainingLength]];
-//}
-
 NSString* fillToLength(NSString * str, short length) {
     return [str stringByPaddingToLength:length withString:@" " startingAtIndex:0];
 }

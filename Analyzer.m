@@ -11,20 +11,41 @@
 
 @implementation Analyzer
 
--(void)scanDirectory:(FSItem*)fsItem olderThan:(NSDate*)dateThreshold minSize:(long)sizeThreshold minDepth:(long)minDepth maxDepth:(long)maxDepth {
-    [self scanDirectory:fsItem olderThan:dateThreshold minSize:sizeThreshold minDepth:(long)minDepth maxDepth:maxDepth options:0];
+-(void)scanDirectory:(FSItem*)fsItem
+           olderThan:(NSDate*)dateThreshold
+             minSize:(long)sizeThreshold
+            minDepth:(long)minDepth
+            maxDepth:(long)maxDepth
+          textFilter:(NSString*)searchText
+{
+    [self scanDirectory:fsItem olderThan:dateThreshold minSize:sizeThreshold minDepth:(long)minDepth maxDepth:maxDepth options:0 textFilter:searchText];
 }
 
--(void)scanDirectory:(FSItem*)fsItem olderThan:(NSDate*)dateThreshold minSize:(long)sizeThreshold minDepth:(long)minDepth maxDepth:(long)maxDepth options:(int)options {
+-(void)scanDirectory:(FSItem*)fsItem
+           olderThan:(NSDate*)dateThreshold
+             minSize:(long)sizeThreshold
+            minDepth:(long)minDepth
+            maxDepth:(long)maxDepth
+             options:(int)options
+          textFilter:(NSString*)searchText
+{
     _rootDirectory = fsItem;
     [_resultArray removeAllObjects];
     _scanData = [[FSScanData alloc] init];
     _scanData.fileURL = fsItem.fileURL;
     [self scanDirectoryInnerLoop:fsItem olderThan:dateThreshold minSize:sizeThreshold minDepth:minDepth maxDepth:maxDepth options:options subLevel:0];
+    if (![searchText isEqualToString:@""])
+        _resultArray = [self filterArrayByTextFilter:_resultArray filter:searchText];
 }
 
 // internal use only, result/item arrays must be emptied before
--(void)scanDirectoryInnerLoop:(FSItem*)fsItem olderThan:(NSDate*)dateThreshold minSize:(long)sizeThreshold minDepth:(long)minDepth maxDepth:(long)maxDepth options:(int)options subLevel:(int)subLevel {
+-(void)scanDirectoryInnerLoop:(FSItem*)fsItem
+                    olderThan:(NSDate*)dateThreshold
+                      minSize:(long)sizeThreshold
+                     minDepth:(long)minDepth
+                     maxDepth:(long)maxDepth
+                      options:(int)options
+                     subLevel:(int)subLevel {
     
     BOOL hideDirectoriesWithoutDates = (options & FCAHideDirectoriesWithoutDates) > 0;
     BOOL lonkeroMode = (options & FCALonkeroMode) > 0;
@@ -120,7 +141,6 @@
             }
             NSDictionary *rowDictionary = [self makeDictionaryForTableViewRow:fsItem subLevel:subLevel];
             [_resultArray addObject:rowDictionary];
-            
         }
         
         // No match -> dig in deeper if max depth not reached
@@ -153,6 +173,16 @@
             }
         }
     }
+}
+
+-(NSMutableArray*)filterArrayByTextFilter:(NSMutableArray*)array filter:(NSString*)searchText {
+    NSMutableArray *result = [[NSMutableArray alloc] initWithCapacity:array.count];
+    for (NSDictionary* row in array) {
+        FSItem *item = [row objectForKey:@"fsitem"];
+        if ([[item.path lowercaseString] containsString:[searchText lowercaseString]])
+            [result addObject:row];
+    }
+    return result;
 }
 
 -(void)scanTaggedItems:(FSItem*)fsItem tags:(TagType)tagPattern {

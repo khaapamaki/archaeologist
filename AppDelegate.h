@@ -20,6 +20,7 @@
 #import "ResultTableView.h"
 #import "Definitions.h"
 #import "NSDate+DateExtra.h"
+#import "SearchField.h"
 
 @interface AppDelegate : NSObject <NSApplicationDelegate> {
 
@@ -32,6 +33,7 @@
     int _ageYears;
     long long _minSize;
     long _minDepth;
+    NSString *_searchText;
     Analyzer *_analyzer;
     NSWindow *scanSheet;
     NSOperationQueue *_opQueue;
@@ -48,8 +50,8 @@
 @property (weak) IBOutlet NSView *mainWindowView;
 @property (weak) IBOutlet NSPanel *inpectorPanel;
 @property (weak) IBOutlet ResultTableView *resultTableView;
-@property (weak) IBOutlet NSWindow *listWindow;
-@property IBOutlet NSTextView *listView; // Deprecated
+//@property (weak) IBOutlet NSWindow *listWindow;
+//@property IBOutlet NSTextView *listView; // Deprecated
 @property (weak) IBOutlet NSPathControl *pathControl;
 
 // IB Outlets
@@ -71,6 +73,7 @@
 
 @property (weak) IBOutlet NSTextField *scanningTextField;
 @property (weak) IBOutlet NSButton *scanExitButton;
+@property (weak) IBOutlet SearchField *searchField;
 
 // IB Outlets for Menu
 @property (weak) IBOutlet NSMenuItem *showMainWindowMenuItem;

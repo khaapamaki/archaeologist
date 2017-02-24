@@ -15,7 +15,7 @@
 
 @implementation ResultTableViewController
 
-- (void)viewDidLoad {
+-(void)viewDidLoad {
     [super viewDidLoad];
     // Do view setup here.
     _tableContents = nil;
@@ -55,18 +55,25 @@
 #pragma mark - Setters and Getters 
 
 -(void)setTableContents:(NSMutableArray *)tableContents {
+    //NSArray * visibleRows = [_resultTableView visibleRows];
+    
     NSSortDescriptor *defaultSortDescriptor = [NSSortDescriptor sortDescriptorWithKey:@"path"
                                                                          ascending:YES
                                                                           selector:@selector(caseInsensitiveCompare:)];
     _tableContents = tableContents;
     if (_lastUsedSortDescriptors == nil) {
         _lastUsedSortDescriptors = [NSArray arrayWithObject:defaultSortDescriptor];
-
     }
+    
     [_tableContents sortUsingDescriptors:_lastUsedSortDescriptors];
     _resultTableView.tableContents = _tableContents;
     
     [_resultTableView reloadData];
+    
+    // scroll to previous position if possible
+    
+    
+    //[_resultTableView scrollRowToVisible:[self firstFoundRowInLastVisibleRows:visibleRows]];
 }
 
 -(NSArray*)getFSItemsByIndexSet:(NSIndexSet *)indexes {
@@ -88,7 +95,6 @@
         return 0;
     return [_tableContents count];
 }
-
 
 // Draw table
 -(id)tableView:(NSTableView *)tableView viewForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
@@ -176,6 +182,11 @@
 
 -(void)reload {
     [_resultTableView reloadData];
+}
+
+-(NSUInteger)firstFoundRowInLastVisibleRows:(NSArray*)rows {
+    // NOT IMPLEMENTED
+    return 0;
 }
 
 @end

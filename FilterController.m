@@ -147,6 +147,22 @@
      object:self];
 }
 
+- (IBAction)searchFieldChanged:(id)sender {
+    [_searchField setNextKeyView:_resultTableView];
+    [_resultTableView setNextKeyView:_searchField];
+    [[NSNotificationCenter defaultCenter]
+     postNotificationName:@"ResultTableViewShouldUpdate"
+     object:self];
+}
+
+
+// Removes focus when user presses enter or tab when on search text field
+//- (BOOL)control:(NSControl *)control textView:(NSTextView *)fieldEditor doCommandBySelector:(SEL)commandSelector
+//{
+//    [_searchField.window makeFirstResponder:nil];
+//    return YES;
+//}
+
 - (void)setFiltersAndOptionsEnabled:(BOOL)isEnabled {
     [_levelTextField setEnabled:isEnabled];
     [_levelSlider setEnabled:isEnabled];
@@ -170,6 +186,7 @@
     [_options5 setEnabled:(isEnabled && [_options4 state])];
     [_options6 setEnabled:(isEnabled && [_options4 state])];
     [_options7 setEnabled:(isEnabled && [_options4 state])];
+    [_searchField setEnabled:isEnabled];
 }
 
 @end

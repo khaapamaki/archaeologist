@@ -1,5 +1,5 @@
 //
-//  MainView.h
+//  ResultTableView.h
 //  Archaelogist
 //
 //  Created by Kati Haapamäki on 18.1.2017.
@@ -18,5 +18,6 @@
 
 - (IBAction)copyToClipboard:(id)sender;
 - (NSIndexSet*)getClickedRowOrSelectedRows;
+//- (NSArray*)visibleRows;
 
 @end
