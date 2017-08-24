@@ -18,6 +18,8 @@
 @property (nonatomic) NSMutableArray *tableContents;
 @property (weak) IBOutlet ResultTableView *resultTableView;
 @property (nonatomic) BOOL useDirectoryDates;
+@property (weak) IBOutlet NSScrollView *resultScrollView;
+@property (weak) IBOutlet NSScroller *verticalScroller;
 
 -(NSArray*)getFSItemsByIndexSet:(NSIndexSet *)indexes;
 

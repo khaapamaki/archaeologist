@@ -55,12 +55,40 @@
 #pragma mark - Setters and Getters 
 
 -(void)setTableContents:(NSMutableArray *)tableContents {
-    //NSArray * visibleRows = [_resultTableView visibleRows];
+    NSMutableArray *newArray = [NSMutableArray arrayWithArray:tableContents];
+    NSRect area =[[_resultScrollView contentView] documentVisibleRect];
+    //NSLog(@"Area %f, %f", area.origin.y, area.size.height);
+
+    float scrollY = area.origin.y + 12.0f;
+    area.origin.y = area.origin.y + 12.0f;
+    
+    NSRange visibleIndexes = [_resultTableView rowsInRect:area];
+    
+    NSLog(@"Visible items: %li, %li (%f)", visibleIndexes.location, visibleIndexes.length, scrollY);
+    if (scrollY >= 0 && visibleIndexes.length > 0) {
+        visibleIndexes.length = visibleIndexes.length - 1;
+        visibleIndexes.location = visibleIndexes.location + 1;
+    } else {
+        if (visibleIndexes.length > 0)
+            visibleIndexes.length = visibleIndexes.length - 1;
+    }
+
+    
+    if (visibleIndexes.location + visibleIndexes.length> [_resultTableView.tableContents count])
+        visibleIndexes.length = [_resultTableView.tableContents count] -visibleIndexes.location;
+    
+
+    
+
+    NSArray *visibleItems = [_resultTableView.tableContents subarrayWithRange:visibleIndexes];
+    unsigned long c = [visibleItems count];
+
+
     
     NSSortDescriptor *defaultSortDescriptor = [NSSortDescriptor sortDescriptorWithKey:@"path"
                                                                          ascending:YES
                                                                           selector:@selector(caseInsensitiveCompare:)];
-    _tableContents = tableContents;
+    _tableContents = newArray;
     if (_lastUsedSortDescriptors == nil) {
         _lastUsedSortDescriptors = [NSArray arrayWithObject:defaultSortDescriptor];
     }
@@ -72,8 +100,9 @@
     
     // scroll to previous position if possible
     
-    
-    //[_resultTableView scrollRowToVisible:[self firstFoundRowInLastVisibleRows:visibleRows]];
+    NSUInteger targetRowIndex = [self firstFoundRowInLastVisibleRows:visibleItems];
+    //NSLog(@"%ul", (unsigned long)targetRowIndex);
+    [_resultTableView scrollRowToVisible:targetRowIndex];
 }
 
 -(NSArray*)getFSItemsByIndexSet:(NSIndexSet *)indexes {
@@ -185,8 +214,30 @@
 }
 
 -(NSUInteger)firstFoundRowInLastVisibleRows:(NSArray*)rows {
-    // NOT IMPLEMENTED
+    long i = 0;
+    for (NSDictionary *row in rows) {
+        NSString* path = [row objectForKey:@"path"];
+        NSInteger index = [self getit:path];
+        if (index >= 0) {
+            long result = index - i + 2;
+            if (i < 0)
+                i = 0;
+            return result;
+        }
+        i++;
+    }
     return 0;
 }
 
+-(NSInteger)getit:(NSString*)path {
+    NSInteger index = 0;
+    for (NSDictionary *row in _resultTableView.tableContents) {
+        NSString* tablepath = [row objectForKey:@"path"];
+        if ([tablepath isEqualToString:path]) {
+            return index;
+        }
+        index++;
+    }
+    return -1;
+}
 @end

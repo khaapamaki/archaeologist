@@ -227,10 +227,8 @@
                             minDepth:_minDepth
                             maxDepth:_maxDepth
                              options:options
-                          textFilter:_searchText]
-            ;
+                          textFilter:_searchText];
 
-            
         } else {
             // To show tagged items instead of filtered
             [_analyzer scanTaggedItems:_scanRoot tags:tagSelector];
@@ -246,7 +244,6 @@
     }
   
 }
-
 
 #pragma mark - Display
 
